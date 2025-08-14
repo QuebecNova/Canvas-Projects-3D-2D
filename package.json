@@ -1,0 +1,22 @@
+{
+    "name": "canvas",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "vite",
+        "build": "vite build",
+        "format": "npx prettier --write ."
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "mathjs": "^14.6.0"
+    },
+    "devDependencies": {
+        "prettier": "^3.6.2",
+        "prettier-plugin-organize-imports": "^4.2.0",
+        "typescript": "^5.9.2",
+        "vite": "^7.1.2"
+    }
+}
