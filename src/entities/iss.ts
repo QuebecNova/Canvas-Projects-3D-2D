@@ -1,4 +1,3 @@
-import { Body } from '@/lib/Body'
 import { Math } from '@/lib/Math'
 import { evaluate } from 'mathjs'
 
@@ -9,7 +8,8 @@ const realISS = {
     r: 1737.4,
 }
 
-export const ISS = new Body({
+export const ISS = {
+    id: 'ISS',
     x: 2000,
     y: 200,
     m: 2e5,
@@ -19,4 +19,4 @@ export const ISS = new Body({
     vθ: Math.convertDegToRad(270),
     r: 200,
     color: 'yellow',
-})
+}

@@ -1,4 +1,23 @@
+import { Coords } from '@/types/Coords'
 import { evaluate, pi } from 'mathjs'
+
+type FourCoords = {
+    x1: number
+    y1: number
+    x2: number
+    y2: number
+    x3: number
+    y3: number
+    x4: number
+    y4: number
+}
+
+type TwoCoords = {
+    x1: number
+    y1: number
+    x2: number
+    y2: number
+}
 
 class MyMath {
     static fullRotation = pi * 2
@@ -41,6 +60,56 @@ class MyMath {
         const y = evaluate(`sin(${θ})*${r}`)
 
         return [x, y]
+    }
+
+    static getDistance({ x1, y1, x2, y2 }: TwoCoords) {
+        const dx = evaluate(`${x2} - ${x1}`)
+        const dy = evaluate(`${y2} - ${y1}`)
+
+        return MyMath.hypotinuse(dx, dy)
+    }
+
+    static getViewAngle({ x1, y1, x2, y2 }: TwoCoords) {
+        const dx = evaluate(`${x2} - ${x1}`)
+        const dy = evaluate(`${y2} - ${y1}`)
+
+        const θ1 = MyMath.getAngle(dx, dy)
+        const θ2 = MyMath.invertAngle(θ1)
+        return { θ1, θ2 }
+    }
+
+    static findIntersection({
+        x1, // first line segment from
+        y1, // first line segment from
+        x2, // first line segment to
+        y2, // first line segment to
+        x3, // second line segment from
+        y3, // second line segment from
+        x4, // second line segment to
+        y4, // second line segment to
+    }: FourCoords): Coords | null {
+        const denominator = evaluate(
+            `(${x1} - ${x2})(${y3}-${y4})-(${y1}-${y2})(${x3}-${x4})`
+        )
+        if (!denominator) return null
+
+        const tNumerator = evaluate(
+            `(${x1} - ${x3})(${y3}-${y4})-(${y1}-${y3})(${x3}-${x4})`
+        )
+        const uNumerator = evaluate(
+            `(${x1} - ${x2})(${y1}-${y3})-(${y1}-${y2})(${x1}-${x3})`
+        )
+        const t = evaluate(`${tNumerator}/${denominator}`)
+        const u = evaluate(`-(${uNumerator}/${denominator})`)
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+            //Intersection
+            const x = evaluate(`${x1}+${t}*(${x2}-${x1})`)
+            const y = evaluate(`${y1}+${t}*(${y2}-${y1})`)
+
+            return { x, y }
+        } else {
+            return null
+        }
     }
 }
 

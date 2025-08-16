@@ -1,4 +1,3 @@
-import { Body } from '@/lib/Body'
 import { Math } from '@/lib/Math'
 import { evaluate } from 'mathjs'
 
@@ -9,14 +8,15 @@ const realMoon = {
     r: 1737.4,
 }
 
-export const moon = new Body({
+export const moon = {
+    id: 'moon',
     x: -2000,
     y: -2000,
-    m: 2e4,
+    m: 2e6,
     v: 50,
     a: 0,
     aθ: Math.convertDegToRad(0),
     vθ: Math.convertDegToRad(90),
     r: evaluate(`${600}*${1737 / 6371}`),
     color: 'gray',
-})
+}

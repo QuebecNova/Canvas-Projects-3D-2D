@@ -1,7 +1,11 @@
-import { evaluate } from 'mathjs'
+import { Coords } from '@/types/Coords'
+import { abs, evaluate, pi, random } from 'mathjs'
 import { Math } from './Math'
+import { Singleton } from './Singleton'
+import { randColor } from './helpers/randColor'
 
 type InitialArguments = {
+    id: string
     x: number
     y: number
     v?: number
@@ -13,9 +17,10 @@ type InitialArguments = {
     color?: string
 }
 
-export class Body {
-    x: number // x coordinate
-    y: number // y coordinate
+export class Body implements Singleton {
+    id: string
+    private static instances: Body[] = []
+    from: Coords
     v: number // velocity (px/s)
     vx: number // velocity in x
     vy: number // velocity in y
@@ -28,6 +33,7 @@ export class Body {
     r: number // radius
     color: string
     constructor({
+        id,
         x,
         y,
         v = 0,
@@ -38,8 +44,11 @@ export class Body {
         r = 1,
         color = 'white',
     }: InitialArguments) {
-        this.x = x
-        this.y = y
+        this.id = id
+        this.from = {
+            x,
+            y,
+        }
         this.v = v
         this.a = a
         this.m = m
@@ -56,6 +65,14 @@ export class Body {
         this.ay = ay
 
         this.color = color
+
+        const body = this.findOne(this.id)
+
+        if (body) {
+            return body
+        } else {
+            Body.instances.push(this)
+        }
     }
 
     move(t: number) {
@@ -65,14 +82,14 @@ export class Body {
 
     private changePosition(t: number): { x: number; y: number } {
         const x = evaluate(
-            `${this.x} + ${this.vx}*${t} + 1/2*${this.ax}*(${t})^2`
+            `${this.from.x} + ${this.vx}*${t} + 1/2*${this.ax}*(${t})^2`
         )
         const y = evaluate(
-            `${this.y} + ${this.vy}*${t} + 1/2*${this.ay}*(${t})^2`
+            `${this.from.y} + ${this.vy}*${t} + 1/2*${this.ay}*(${t})^2`
         )
 
-        this.x = x
-        this.y = y
+        this.from.x = x
+        this.from.y = y
 
         return { x, y }
     }
@@ -102,5 +119,34 @@ export class Body {
         this.aθ = θ
 
         return { ax, ay, a }
+    }
+
+    findOne(id: string) {
+        return Body.instances.find((inctance) => inctance.id === id)
+    }
+
+    static randomize(body: InitialArguments) {
+        const factor = random(-2, 2)
+        const deg = random(0, pi * 2)
+        const rFactor = random(0.8, 2)
+        const copy = { ...body }
+        copy.x = body.x * factor
+        copy.y = body.y * factor
+        if (body.v) {
+            copy.v = body.v * abs(factor)
+        }
+        copy.m = body.m * abs(factor)
+        if (body.r) {
+            copy.r = body.r * rFactor
+        }
+        if (body.color) {
+            copy.color = randColor()
+        }
+        copy.vθ = deg
+        return copy
+    }
+
+    static clear() {
+        Body.instances = []
     }
 }

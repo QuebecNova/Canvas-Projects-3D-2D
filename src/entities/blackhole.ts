@@ -1,7 +1,7 @@
-import { Body } from '@/lib/Body'
 import { Math } from '@/lib/Math'
 
-export const blackhole = new Body({
+export const blackhole = {
+    id: 'blackhole',
     x: 1000,
     y: 200,
     m: 3.5e7,
@@ -11,4 +11,4 @@ export const blackhole = new Body({
     aθ: Math.convertDegToRad(0),
     r: 200,
     color: 'black',
-})
+}
