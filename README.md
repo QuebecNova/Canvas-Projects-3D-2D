@@ -12,6 +12,10 @@ Just raycasting with some walls in it
 
 Use left click to move raycasting sphere
 
+### General
+
+Use mousewheel to scroll in or out
+
 ### About codebase
 UI with canvas
 
