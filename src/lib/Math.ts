@@ -37,8 +37,21 @@ class MyMath {
 
     static formatAngle(θ: number) {
         const turns = Math.trunc(evaluate(`${θ} / ${MyMath.fullRotation}`))
-        const θ1 = evaluate(`${θ} - (${MyMath.fullRotation} * ${turns})`)
+        let θ1 = evaluate(`${θ} - (${MyMath.fullRotation} * ${turns})`)
+        if (θ1 < 0) {
+            θ1 += pi * 2
+        }
         return θ1
+    }
+
+    static boundToStraightAngle(θ: number): number {
+        θ = MyMath.formatAngle(θ)
+        const deg = MyMath.convertRadToDeg(θ)
+        if (deg < 90) return θ
+        if (deg < 180 && deg >= 90) return θ - pi / 2
+        if (deg < 270 && deg >= 180) return θ - pi
+        if (deg >= 270) return θ - (3 / 2) * pi
+        return θ
     }
 
     static hypotinuse(x: number, y: number): number {

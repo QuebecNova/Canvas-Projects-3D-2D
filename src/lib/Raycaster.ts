@@ -19,6 +19,14 @@ type InitialArguments = {
     options?: RaycasterOptions
 }
 
+export type Ray = {
+    from: Coords
+    to: Coords
+    isIntersect: boolean
+    d: number
+    θ: number
+}
+
 export class Raycaster implements Singleton {
     id: string
     private static instances: Raycaster[] = []
@@ -27,6 +35,7 @@ export class Raycaster implements Singleton {
     rayRadius: number
     r: number // radius
     color: string
+    rays: Ray[] = []
 
     walls: { from: Coords; to: Coords }[] = []
 
@@ -62,14 +71,15 @@ export class Raycaster implements Singleton {
         }
     }
 
-    emitRays(): { from: Coords; to: Coords; θ: number }[] {
+    emitRays(): Ray[] {
         const rays = []
-        const step = this.options.fieldOfEmission / this.options.rays
+        const step = this.options.fieldOfEmission / (this.options.rays - 1)
         for (
             let θ = this.options.θ;
             θ <= this.options.fieldOfEmission + this.options.θ;
             θ += step
         ) {
+            let isIntersect: boolean = false
             const to = { x: 0, y: 0 }
             const deg = Math.convertRadToDeg(θ)
             if (
@@ -100,15 +110,27 @@ export class Raycaster implements Singleton {
                 if (intersection) {
                     to.x = intersection.x
                     to.y = intersection.y
+                    isIntersect = true
                 }
             })
-            rays.push({ from: this.from, to, θ })
+            const d = Math.getDistance({
+                x1: this.from.x,
+                y1: this.from.y,
+                x2: to.x,
+                y2: to.y,
+            })
+            rays.push({ from: this.from, to, isIntersect, d, θ })
         }
+        this.rays = rays
         return rays
     }
 
     findOne(id: string) {
         return Raycaster.instances.find((inctance) => inctance.id === id)
+    }
+
+    rotate(θ: number) {
+        this.options.θ = Math.formatAngle(this.options.θ + θ)
     }
 
     static clear() {

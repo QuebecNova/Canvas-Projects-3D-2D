@@ -1,4 +1,5 @@
 import { Coords } from '@/types/Coords'
+import { random } from 'mathjs'
 import { Singleton } from './Singleton'
 
 type InitialArguments = {
@@ -26,6 +27,26 @@ export class Wall implements Singleton {
         } else {
             Wall.instances.push(this)
         }
+    }
+
+    static random(halfWidth: number, halfHeight: number, count: number = 1) {
+        const walls = []
+        for (let i = 0; i < count; i++) {
+            const wall = new Wall({
+                id: random(0, 1).toString(),
+
+                from: {
+                    x: random(-halfWidth, halfWidth),
+                    y: random(-halfHeight, halfHeight),
+                },
+                to: {
+                    x: random(-halfWidth, halfWidth),
+                    y: random(-halfHeight, halfHeight),
+                },
+            })
+            walls.push(wall)
+        }
+        return walls
     }
 
     findOne(id: string) {

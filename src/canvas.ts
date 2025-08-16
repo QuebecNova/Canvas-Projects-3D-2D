@@ -4,6 +4,8 @@ let startDate: Date
 
 let mode: 'raycasting' | 'gravisim' = 'raycasting'
 
+let draw: Draw
+
 function main() {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement
     if (!canvas || !startDate) return
@@ -11,7 +13,11 @@ function main() {
     if (!ctx) return
     ctx.save()
 
-    const draw = new Draw({ canvas, ctx, startDate })
+    draw = new Draw({ canvas, ctx, startDate })
+
+    addButtonListeners()
+    draw.addZoom()
+
     if (mode === 'raycasting') {
         draw.raycasting()
     }
@@ -26,30 +32,23 @@ function main() {
 window.addEventListener('load', () => {
     startDate = new Date()
 
-    addButtonListeners()
-
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement
-    if (canvas) {
-        Draw.addZoom(canvas)
-    }
     window.requestAnimationFrame(main)
 })
 
 function addButtonListeners() {
     const raycastingbtn = document.getElementById('raycasting')
     const gravitybtn = document.getElementById('gravisim')
-
     if (raycastingbtn) {
         raycastingbtn.onclick = () => {
             mode = 'raycasting'
-            Draw.zoomFactor = 1
+            draw.zoomFactor = 1
         }
     }
     if (gravitybtn) {
         gravitybtn.onclick = () => {
-            Draw.clear()
-            Draw.zoomFactor = 0.1
             mode = 'gravisim'
+            draw.zoomFactor = 0.1
+            Draw.clear()
         }
     }
 }
