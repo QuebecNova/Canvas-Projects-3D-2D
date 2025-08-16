@@ -5,6 +5,8 @@ Runs with real newton physics
 
 Use left click to move objects
 
+The arrows indicate magnitude of force of attraction between objects
+
 ## Raycasting
 Just raycasting with some walls in it
 
