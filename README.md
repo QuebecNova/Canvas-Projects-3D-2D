@@ -1,11 +1,13 @@
-# N Body Gravity Simulator (Gravisim) & Raycasting showcase
+# N Body Gravity Simulator (Gravisim) & Raycasting
 
 ## Gravisim
 Runs with real newton physics
+
 Use left click to move objects
 
 ## Raycasting
 Just raycasting with some walls in it
+
 Use left click to move raycasting sphere
 
 ### About codebase
