@@ -1,4 +1,4 @@
-import { Math } from '@/lib/Math'
+import { Math } from '@/lib/common/Math'
 
 const realEarth = {
     m: 5.972168e24,

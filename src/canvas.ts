@@ -1,10 +1,11 @@
-import { Draw } from './lib/canvas/Draw'
+import { Draw2D } from './lib/2D/canvas/Draw'
+import { Modes2D, Modes3D } from './enums/Modes'
 
 let startDate: Date
 
-let mode: 'raycasting' | 'gravisim' = 'raycasting'
+let mode: Modes2D | Modes3D = Modes2D.RAYCASTING
 
-let draw: Draw
+let draw2D: Draw2D
 
 function main() {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -13,16 +14,16 @@ function main() {
     if (!ctx) return
     ctx.save()
 
-    draw = new Draw({ canvas, ctx, startDate })
+    draw2D = new Draw2D({ canvas, ctx, startDate })
 
     addButtonListeners()
-    draw.addZoom()
+    draw2D.addZoom()
 
-    if (mode === 'raycasting') {
-        draw.raycasting()
+    if (mode === Modes2D.RAYCASTING) {
+        draw2D.raycasting()
     }
-    if (mode === 'gravisim') {
-        draw.gravisim()
+    if (mode === Modes2D.GRAVISIM) {
+        draw2D.gravisim()
     }
 
     ctx.restore()
@@ -36,19 +37,19 @@ window.addEventListener('load', () => {
 })
 
 function addButtonListeners() {
-    const raycastingbtn = document.getElementById('raycasting')
-    const gravitybtn = document.getElementById('gravisim')
+    const raycastingbtn = document.getElementById(Modes2D.RAYCASTING)
+    const gravitybtn = document.getElementById(Modes2D.GRAVISIM)
     if (raycastingbtn) {
         raycastingbtn.onclick = () => {
-            mode = 'raycasting'
-            draw.zoomFactor = 1
+            mode = Modes2D.RAYCASTING
+            draw2D.zoomFactor = 1
         }
     }
     if (gravitybtn) {
         gravitybtn.onclick = () => {
-            mode = 'gravisim'
-            draw.zoomFactor = 0.1
-            Draw.clear()
+            mode = Modes2D.GRAVISIM
+            draw2D.zoomFactor = 0.1
+            Draw2D.clear()
         }
     }
 }

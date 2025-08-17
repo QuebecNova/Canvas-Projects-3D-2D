@@ -1,4 +1,4 @@
-import { Math } from '@/lib/Math'
+import { Math } from '@/lib/common/Math'
 
 export const blackhole = {
     id: 'blackhole',

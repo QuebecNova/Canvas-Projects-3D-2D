@@ -1,6 +1,6 @@
+import { Math } from '@/lib/common/Math'
 import { Body } from './Body'
 import { Gravity } from './Gravity'
-import { Math } from './Math'
 
 type GravityForce = {
     n1: number

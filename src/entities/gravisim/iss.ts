@@ -1,4 +1,4 @@
-import { Math } from '@/lib/Math'
+import { Math } from '@/lib/common/Math'
 import { evaluate } from 'mathjs'
 
 const realISS = {

@@ -1,17 +1,17 @@
+import { blackhole } from '@/entities/gravisim/blackhole'
+import { earth } from '@/entities/gravisim/earth'
+import { ISS } from '@/entities/gravisim/iss'
+import { moon } from '@/entities/gravisim/moon'
+import { venus } from '@/entities/gravisim/venus'
+import { castValueToRange } from '@/lib/common/helpers/converRange'
+import { Math } from '@/lib/common/Math'
 import { Coords } from '@/types/Coords'
 import { abs, cos, evaluate, pi, round, sin } from 'mathjs'
-import { blackhole } from '../../entities/blackhole'
-import { earth } from '../../entities/earth'
-import { ISS } from '../../entities/iss'
-import { moon } from '../../entities/moon'
-import { venus } from '../../entities/venus'
 import { Body } from '../Body'
 import { Gravisim } from '../Gravisim'
-import { Math } from '../Math'
 import { Raycaster } from '../Raycaster'
 import { Scene } from '../Scene'
 import { Wall } from '../Wall'
-import { castValueToRange } from '../helpers/converRange'
 
 type InitialArguments = {
     canvas: HTMLCanvasElement
@@ -26,14 +26,14 @@ type Element = {
     r?: number
     color: string
 }
-export class Draw {
+export class Draw2D {
     id: string
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
     elapsedTime: number
     renderDistance: number
     zoomFactor = 1
-    private static instances: Draw[] = []
+    private static instances: Draw2D[] = []
     static framerate = 60
     private static elements: Element[] = []
 
@@ -49,15 +49,13 @@ export class Draw {
         this.renderDistance =
             (this.canvas.width + this.canvas.height) / this.zoomFactor
         this.id = canvas.id
-        this.elapsedTime =
-            (newDate.getTime() - (startDate || newDate).getTime()) / 1000
         this.setupCanvas()
-        const instance = Draw.findOne(this.id)
+        const instance = Draw2D.findOne(this.id)
         if (instance) {
             this.zoomFactor = instance.zoomFactor
             return instance
         } else {
-            Draw.instances.push(this)
+            Draw2D.instances.push(this)
         }
     }
 
@@ -192,7 +190,7 @@ export class Draw {
         })
         const gravisim = new Gravisim(bodys)
 
-        const GravityForces = gravisim.simulateNBody(1 / Draw.framerate)
+        const GravityForces = gravisim.simulateNBody(1 / Draw2D.framerate)
         GravityForces.forEach((force) => {
             this.bodyVector(
                 evaluate(`${force.F}/${bodys[force.n1].m}`),
@@ -206,10 +204,10 @@ export class Draw {
             )
         })
         bodys.forEach((body) => {
-            const element = Draw.findOneById(body.id)
+            const element = Draw2D.findOneById(body.id)
 
             if (!element) {
-                Draw.elements.push(body)
+                Draw2D.elements.push(body)
             }
             this.circle(body)
         })
@@ -236,9 +234,9 @@ export class Draw {
             this.line(ray.from, ray.to)
         })
 
-        const reycasterElement = Draw.findOneById(raycaster.id)
+        const reycasterElement = Draw2D.findOneById(raycaster.id)
         if (!reycasterElement) {
-            Draw.elements.push(raycaster as Element)
+            Draw2D.elements.push(raycaster as Element)
         }
 
         this.addMouseMove()
@@ -287,7 +285,7 @@ export class Draw {
     addMouseMove() {
         this.canvas.onmousedown = (e) => {
             const { x, y } = this.getMousePos(e)
-            const element = Draw.findOneCircleByMousePosition({ x, y }, this)
+            const element = Draw2D.findOneCircleByMousePosition({ x, y }, this)
             if (!element) return
             const xDiff = x - element.from.x
             const yDiff = y - element.from.y
@@ -312,7 +310,7 @@ export class Draw {
 
     addMovementKeys(raycaster: Raycaster) {
         document.onkeydown = (e) => {
-            const element = Draw.findOneById(raycaster.id)
+            const element = Draw2D.findOneById(raycaster.id)
             if (e.code === 'KeyE') {
                 raycaster.rotate(-(pi / 32))
             }
@@ -366,13 +364,13 @@ export class Draw {
     }
 
     static findOneById(id: string) {
-        return Draw.elements.find((element) => element.id === id)
+        return Draw2D.elements.find((element) => element.id === id)
     }
 
-    static findOneCircleByMousePosition({ x, y }: Coords, draw: Draw) {
-        return Draw.elements.find((element) => {
+    static findOneCircleByMousePosition({ x, y }: Coords, draw2D: Draw2D) {
+        return Draw2D.elements.find((element) => {
             if (!element.r) return
-            const d = element.r + draw.getLineWidth()
+            const d = element.r + draw2D.getLineWidth()
             const xDiff = x - element.from.x
             const yDiff = y - element.from.y
             return xDiff >= -d && xDiff <= d && yDiff >= -d && yDiff <= d
@@ -382,7 +380,7 @@ export class Draw {
     addZoom() {
         this.canvas.onwheel = (e) => {
             e.preventDefault()
-            const instance = Draw.findOne(this.id)
+            const instance = Draw2D.findOne(this.id)
             if (instance) {
                 const factor = instance.zoomFactor
                 this.zoomFactor = factor + (factor * e.deltaY * -1) / 1000
@@ -397,11 +395,11 @@ export class Draw {
         Raycaster.clear()
         Wall.clear()
         Body.clear()
-        Draw.elements = []
+        Draw2D.elements = []
         Scene.clear()
     }
 
     static findOne(id: string) {
-        return Draw.instances.find((inctance) => inctance.id === id)
+        return Draw2D.instances.find((inctance) => inctance.id === id)
     }
 }

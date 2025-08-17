@@ -1,8 +1,8 @@
+import { Math } from '@/lib/common/Math'
+import { Singleton } from '@/lib/common/Singleton'
+import { randColor } from '@/lib/common/helpers/randColor'
 import { Coords } from '@/types/Coords'
 import { abs, evaluate, pi, random } from 'mathjs'
-import { Math } from './Math'
-import { Singleton } from './Singleton'
-import { randColor } from './helpers/randColor'
 
 type InitialArguments = {
     id: string

@@ -1,7 +1,7 @@
 import { pi } from 'mathjs'
 import { Raycaster } from './Raycaster'
 import { Wall } from './Wall'
-import { Draw } from './canvas/Draw'
+import { Draw2D } from '@/lib/2D/canvas/Draw'
 
 export class Scene {
     renderDistance: number
@@ -30,7 +30,7 @@ export class Scene {
         if (!canvas || !ctx) return
         ctx.save()
 
-        const draw = new Draw({ canvas, ctx })
+        const draw = new Draw2D({ canvas, ctx })
         draw.scene(this.raycaster)
     }
     setup() {
