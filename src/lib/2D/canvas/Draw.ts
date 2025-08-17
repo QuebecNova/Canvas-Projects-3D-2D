@@ -18,6 +18,7 @@ type InitialArguments = {
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
     startDate?: Date
+    zoomFactor?: number
 }
 
 type Element = {
@@ -33,12 +34,12 @@ export class Draw2D {
     ctx: CanvasRenderingContext2D
     elapsedTime: number
     renderDistance: number
-    zoomFactor = 1
+    zoomFactor: number
     private static instances: Draw2D[] = []
     static framerate = 60
     private static elements: Element[] = []
 
-    constructor({ canvas, ctx, startDate }: InitialArguments) {
+    constructor({ canvas, ctx, startDate, zoomFactor = 1 }: InitialArguments) {
         this.canvas = canvas
         if (this.canvas.height !== window.innerHeight - 100) {
             this.canvas.height = window.innerHeight - 100
@@ -46,6 +47,7 @@ export class Draw2D {
         if (this.canvas.width !== window.innerWidth - 20) {
             this.canvas.width = window.innerWidth - 20
         }
+        this.zoomFactor = zoomFactor
         const newDate = new Date()
         this.elapsedTime =
             (newDate.getTime() - (startDate || newDate).getTime()) / 1000
@@ -58,7 +60,6 @@ export class Draw2D {
         this.setupCanvas()
         const instance = Draw2D.findOne(this.id)
         if (instance) {
-            this.zoomFactor = instance.zoomFactor
             return instance
         } else {
             Draw2D.instances.push(this)

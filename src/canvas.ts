@@ -14,13 +14,13 @@ function is2D() {
     return ([Modes2D.GRAVISIM, Modes2D.RAYCASTING] as string[]).includes(mode)
 }
 
-function main2D() {
+function main2D(zoomFactor?: number) {
     if (!is2D()) return
     const { canvas, ctx } = getCanvas('canvas_2D_main', '2d')
     if (!canvas || !startDate || !ctx) return
     ctx.save()
 
-    draw2D = new Draw2D({ canvas, ctx, startDate })
+    draw2D = new Draw2D({ canvas, ctx, startDate, zoomFactor })
 
     draw2D.addZoom()
 
@@ -49,12 +49,12 @@ window.addEventListener('load', () => {
     startDate = new Date()
     addButtonListeners()
     setModeFromLocalStorage()
-    requestAnimationFrame()
+    requestAnimationFrame(mode === Modes2D.GRAVISIM ? 0.1 : 1)
 })
 
-function requestAnimationFrame() {
+function requestAnimationFrame(zoomFactor?: number) {
     if (is2D()) {
-        window.requestAnimationFrame(main2D)
+        window.requestAnimationFrame(() => main2D(zoomFactor))
     } else {
         window.requestAnimationFrame(main3D)
     }
@@ -77,10 +77,10 @@ function addButtonListeners() {
     }
     if (gravitybtn) {
         gravitybtn.onclick = () => {
+            setMode(Modes2D.GRAVISIM)
             if (draw2D) {
                 draw2D.zoomFactor = 0.1
             }
-            setMode(Modes2D.GRAVISIM)
             clear()
             requestAnimationFrame()
         }
