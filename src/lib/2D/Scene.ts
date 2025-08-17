@@ -1,7 +1,8 @@
+import { Draw2D } from '@/lib/2D/canvas/Draw'
 import { pi } from 'mathjs'
+import { getCanvas } from '../common/getCanvas'
 import { Raycaster } from './Raycaster'
 import { Wall } from './Wall'
-import { Draw2D } from '@/lib/2D/canvas/Draw'
 
 export class Scene {
     renderDistance: number
@@ -26,8 +27,9 @@ export class Scene {
         this.fov = fov
         this.raycaster = this.setup().raycaster
 
-        const { canvas, ctx } = Scene.getCanvas()
+        const { canvas, ctx } = getCanvas('canvas_2D_secondary', '2d')
         if (!canvas || !ctx) return
+        canvas.hidden = false
         ctx.save()
 
         const draw = new Draw2D({ canvas, ctx })
@@ -54,21 +56,11 @@ export class Scene {
         return { raycaster }
     }
 
-    private static getCanvas() {
-        const canvas = document.getElementById(
-            'canvas_scene'
-        ) as HTMLCanvasElement
-        if (!canvas) return {}
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return {}
-
-        return { ctx, canvas }
-    }
-
     static clear() {
-        const { canvas } = Scene.getCanvas()
+        const { canvas } = getCanvas('canvas_2D_secondary', '2d')
         if (!canvas) return
         canvas.width = 0
         canvas.height = 0
+        canvas.hidden = true
     }
 }

@@ -3,6 +3,7 @@ import { earth } from '@/entities/gravisim/earth'
 import { ISS } from '@/entities/gravisim/iss'
 import { moon } from '@/entities/gravisim/moon'
 import { venus } from '@/entities/gravisim/venus'
+import { getCanvas } from '@/lib/common/getCanvas'
 import { castValueToRange } from '@/lib/common/helpers/converRange'
 import { Math } from '@/lib/common/Math'
 import { Coords } from '@/types/Coords'
@@ -38,12 +39,17 @@ export class Draw2D {
     private static elements: Element[] = []
 
     constructor({ canvas, ctx, startDate }: InitialArguments) {
+        this.canvas = canvas
+        if (this.canvas.height !== window.innerHeight - 100) {
+            this.canvas.height = window.innerHeight - 100
+        }
+        if (this.canvas.width !== window.innerWidth - 20) {
+            this.canvas.width = window.innerWidth - 20
+        }
         const newDate = new Date()
         this.elapsedTime =
             (newDate.getTime() - (startDate || newDate).getTime()) / 1000
-        this.canvas = canvas
-        this.canvas.height = window.innerHeight - 100
-        this.canvas.width = window.innerWidth - 20
+        this.canvas.hidden = false
         this.ctx = ctx
         this.ctx.strokeStyle = 'white'
         this.renderDistance =
@@ -358,9 +364,6 @@ export class Draw2D {
                 }
             }
         }
-        // this.canvas.onkeyup = () => {
-        // this.canvas.onmousemove = null
-        // }
     }
 
     static findOneById(id: string) {
@@ -391,12 +394,19 @@ export class Draw2D {
         }
     }
 
-    static clear() {
+    clear() {
         Raycaster.clear()
         Wall.clear()
         Body.clear()
         Draw2D.elements = []
         Scene.clear()
+        this.clearCanvas()
+        const { canvas } = getCanvas('canvas_2D_main', '2d')
+        if (canvas) {
+            canvas.width = 0
+            canvas.height = 0
+            canvas.hidden = true
+        }
     }
 
     static findOne(id: string) {

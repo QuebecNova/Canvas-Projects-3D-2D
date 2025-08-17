@@ -1,7 +1,7 @@
-import { Coords } from '@/types/Coords'
-import { evaluate } from 'mathjs'
 import { Math } from '@/lib/common/Math'
 import { Singleton } from '@/lib/common/Singleton'
+import { Coords } from '@/types/Coords'
+import { evaluate } from 'mathjs'
 
 type RaycasterOptions = {
     rays: number

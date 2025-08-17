@@ -15,25 +15,30 @@
             canvas {
                 border: 1px solid white;
             }
+            .btn-contanier {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .canvas-contanier {
+                display: flex;
+                justify-content: center;
+            }
         </style>
         <script src="./canvas.ts" type="module"></script>
     </head>
     <body>
         <div>
-            <div style="display: flex; justify-content: center">
-                <canvas id="canvas" height="720px" width="1280px"></canvas>
-                <canvas id="canvas_scene" height="0px" width="0px"></canvas>
+            <div class="canvas-contanier">
+                <canvas id="canvas_2D_main" height="0" width="0"></canvas>
+                <canvas id="canvas_2D_secondary" height="0" width="0"></canvas>
+                <canvas id="canvas_3D_main" height="0" width="0"></canvas>
             </div>
-            <div
-                style="
-                    display: flex;
-                    justify-content: center;
-                    gap: 10px;
-                    margin-top: 10px;
-                "
-            >
+            <div class="btn-contanier">
                 <button id="raycasting">Raycasting</button>
                 <button id="gravisim">Gravisim</button>
+                <!-- <button id="engine">3D Engine</button> -->
             </div>
         </div>
     </body>

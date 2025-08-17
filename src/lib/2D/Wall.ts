@@ -1,6 +1,6 @@
+import { Singleton } from '@/lib/common/Singleton'
 import { Coords } from '@/types/Coords'
 import { random } from 'mathjs'
-import { Singleton } from '@/lib/common/Singleton'
 
 type InitialArguments = {
     id: string
