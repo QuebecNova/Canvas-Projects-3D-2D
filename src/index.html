@@ -24,6 +24,7 @@
             .canvas-contanier {
                 display: flex;
                 justify-content: center;
+                min-height: 90vh;
             }
         </style>
         <script src="./canvas.ts" type="module"></script>
@@ -31,9 +32,9 @@
     <body>
         <div>
             <div class="canvas-contanier">
-                <canvas id="canvas_2D_main" height="0" width="0"></canvas>
-                <canvas id="canvas_2D_secondary" height="0" width="0"></canvas>
-                <canvas id="canvas_3D_main" height="0" width="0"></canvas>
+                <canvas id="canvas_2D_main" height="0" width="0" hidden></canvas>
+                <canvas id="canvas_2D_secondary" height="0" width="0" hidden></canvas>
+                <canvas id="canvas_3D_main" height="0" width="0" hidden></canvas>
             </div>
             <div class="btn-contanier">
                 <button id="raycasting">Raycasting</button>

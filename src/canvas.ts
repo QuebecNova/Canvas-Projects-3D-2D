@@ -66,10 +66,10 @@ function addButtonListeners() {
     const engine3Dbtn = document.getElementById(Modes3D.ENGINE)
     if (raycastingbtn) {
         raycastingbtn.onclick = () => {
+            setMode(Modes2D.RAYCASTING)
             if (draw2D) {
                 draw2D.zoomFactor = 1
             }
-            setMode(Modes2D.RAYCASTING)
             clear()
             //FIX: perfomance issues otherwise...
             window.location.reload()
