@@ -10,9 +10,11 @@ The arrows indicate magnitude of force of attraction between objects
 
 ## Raycasting
 
-Just raycasting with some walls in it
+Just raycasting with some walls in it, used to imitate 3D vision
 
-Use left click to move raycasting sphere
+Use left click or WASD to move raycasting sphere
+
+Use Q and R to rotate
 
 ### General
 
