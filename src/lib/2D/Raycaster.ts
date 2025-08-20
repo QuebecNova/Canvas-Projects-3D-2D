@@ -1,6 +1,6 @@
 import { Math } from '@/lib/common/Math'
 import { Singleton } from '@/lib/common/Singleton'
-import { Coords } from '@/types/Coords'
+import { Coords2D } from '@/types/Coords'
 import { evaluate } from 'mathjs'
 
 type RaycasterOptions = {
@@ -11,8 +11,8 @@ type RaycasterOptions = {
 
 type InitialArguments = {
     id: string
-    walls?: { from: Coords; to: Coords }[]
-    from?: Coords
+    walls?: { from: Coords2D; to: Coords2D }[]
+    from?: Coords2D
     rayRadius?: number
     r?: number
     color?: string
@@ -20,8 +20,8 @@ type InitialArguments = {
 }
 
 export type Ray = {
-    from: Coords
-    to: Coords
+    from: Coords2D
+    to: Coords2D
     isIntersect: boolean
     d: number
     θ: number
@@ -31,13 +31,13 @@ export class Raycaster implements Singleton {
     id: string
     private static instances: Raycaster[] = []
 
-    from: Coords
+    from: Coords2D
     rayRadius: number
     r: number // radius
     color: string
     rays: Ray[] = []
 
-    walls: { from: Coords; to: Coords }[] = []
+    walls: { from: Coords2D; to: Coords2D }[] = []
 
     options: RaycasterOptions
 
@@ -81,7 +81,7 @@ export class Raycaster implements Singleton {
         ) {
             let isIntersect: boolean = false
             const to = { x: 0, y: 0 }
-            const deg = Math.convertRadToDeg(θ)
+            const deg = Math.radToDeg(θ)
             if (
                 deg > 270 ||
                 (deg >= -90 && deg < 90) ||

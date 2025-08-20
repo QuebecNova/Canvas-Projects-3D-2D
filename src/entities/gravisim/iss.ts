@@ -15,8 +15,8 @@ export const ISS = {
     m: 2e5,
     v: 100,
     a: 0,
-    aθ: Math.convertDegToRad(0),
-    vθ: Math.convertDegToRad(270),
+    aθ: Math.degToRad(0),
+    vθ: Math.degToRad(270),
     r: 200,
     color: 'yellow',
 }

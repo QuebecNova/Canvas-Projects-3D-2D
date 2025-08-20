@@ -32,33 +32,32 @@ function main2D(zoomFactor?: number) {
     }
 
     ctx.restore()
-    requestAnimationFrame()
+    window.requestAnimationFrame(main2D)
 }
 
 function main3D() {
     if (is2D()) return
-    const { canvas, ctx } = getCanvas('canvas_3D_main', 'webgl')
-    if (!canvas || !startDate || !ctx) return
+    const { canvas, ctx: gl } = getCanvas('canvas_3D_main', 'webgl')
+    if (!canvas || !startDate || !gl) return
 
-    draw3D = new Draw3D({ canvas, ctx, startDate })
-
-    requestAnimationFrame()
+    draw3D = new Draw3D({ canvas, gl, startDate })
+    setInterval(() => {
+        draw3D?.main(startDate)
+    }, 60 / 1000)
 }
 
 window.addEventListener('load', () => {
     startDate = new Date()
     addButtonListeners()
     setModeFromLocalStorage()
-    requestAnimationFrame(mode === Modes2D.GRAVISIM ? 0.1 : 1)
-})
-
-function requestAnimationFrame(zoomFactor?: number) {
     if (is2D()) {
-        window.requestAnimationFrame(() => main2D(zoomFactor))
+        window.requestAnimationFrame(() =>
+            main2D(mode === Modes2D.GRAVISIM ? 0.1 : 1)
+        )
     } else {
-        window.requestAnimationFrame(main3D)
+        main3D()
     }
-}
+})
 
 function addButtonListeners() {
     const raycastingbtn = document.getElementById(Modes2D.RAYCASTING)
@@ -71,7 +70,7 @@ function addButtonListeners() {
                 draw2D.zoomFactor = 1
             }
             clear()
-            //FIX: perfomance issues otherwise...
+            //FIXME: perfomance issues otherwise...
             window.location.reload()
         }
     }
@@ -82,14 +81,14 @@ function addButtonListeners() {
                 draw2D.zoomFactor = 0.1
             }
             clear()
-            requestAnimationFrame()
+            window.requestAnimationFrame(main2D)
         }
     }
     if (engine3Dbtn) {
         engine3Dbtn.onclick = () => {
             setMode(Modes3D.ENGINE)
             clear()
-            requestAnimationFrame()
+            main3D()
         }
     }
 }

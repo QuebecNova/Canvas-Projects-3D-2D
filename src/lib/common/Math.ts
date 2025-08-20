@@ -1,4 +1,4 @@
-import { Coords } from '@/types/Coords'
+import { Coords2D } from '@/types/Coords'
 import { evaluate, pi } from 'mathjs'
 
 type FourCoords = {
@@ -20,8 +20,7 @@ type TwoCoords = {
 }
 
 class MyMath {
-    static fullRotation = pi * 2
-    static maxV = 30
+    static readonly fullRotation = pi * 2
 
     static getAngle(x: number, y: number): number {
         if (x === 0 && y >= 0) return MyMath.formatAngle(0)
@@ -55,7 +54,7 @@ class MyMath {
 
     static boundToStraightAngle(θ: number): number {
         θ = MyMath.formatAngle(θ)
-        const deg = MyMath.convertRadToDeg(θ)
+        const deg = MyMath.radToDeg(θ)
         if (deg < 90) return θ
         if (deg < 180 && deg >= 90) return evaluate(`${θ} - (${pi}/2)`)
         if (deg < 270 && deg >= 180) return evaluate(`${θ} - ${pi}`)
@@ -69,15 +68,15 @@ class MyMath {
         return d
     }
 
-    static convertDegToRad(deg: number) {
+    static degToRad(deg: number) {
         return evaluate(`${deg} / 57.2958`)
     }
 
-    static convertRadToDeg(rad: number) {
+    static radToDeg(rad: number) {
         return evaluate(`${rad} * 57.2958`)
     }
 
-    static convertPolarToCartesian(r: number, θ: number): [number, number] {
+    static polarToCartesian(r: number, θ: number): [number, number] {
         const x = evaluate(`cos(${θ})*${r}`)
         const y = evaluate(`sin(${θ})*${r}`)
 
@@ -109,7 +108,7 @@ class MyMath {
         y3, // second line segment from
         x4, // second line segment to
         y4, // second line segment to
-    }: FourCoords): Coords | null {
+    }: FourCoords): Coords2D | null {
         const denominator = evaluate(
             `(${x1} - ${x2})(${y3}-${y4})-(${y1}-${y2})(${x3}-${x4})`
         )

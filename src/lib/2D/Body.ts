@@ -1,7 +1,7 @@
 import { Math } from '@/lib/common/Math'
 import { Singleton } from '@/lib/common/Singleton'
 import { randColor } from '@/lib/common/helpers/randColor'
-import { Coords } from '@/types/Coords'
+import { Coords2D } from '@/types/Coords'
 import { abs, evaluate, pi, random } from 'mathjs'
 
 type InitialArguments = {
@@ -20,7 +20,7 @@ type InitialArguments = {
 export class Body implements Singleton {
     id: string
     private static instances: Body[] = []
-    from: Coords
+    from: Coords2D
     v: number // velocity (px/s)
     vx: number // velocity in x
     vy: number // velocity in y
@@ -56,11 +56,11 @@ export class Body implements Singleton {
         this.vθ = vθ
         this.aθ = aθ
 
-        const [vx, vy] = Math.convertPolarToCartesian(v, vθ)
+        const [vx, vy] = Math.polarToCartesian(v, vθ)
         this.vx = vx
         this.vy = vy
 
-        const [ax, ay] = Math.convertPolarToCartesian(a, aθ)
+        const [ax, ay] = Math.polarToCartesian(a, aθ)
         this.ax = ax
         this.ay = ay
 
@@ -111,7 +111,7 @@ export class Body implements Singleton {
             return { ax: this.ax, ay: this.ay, a: this.a }
         }
         const a = evaluate(`${F}/${this.m}`)
-        const [ax, ay] = Math.convertPolarToCartesian(a, θ)
+        const [ax, ay] = Math.polarToCartesian(a, θ)
 
         this.ax = ax
         this.ay = ay

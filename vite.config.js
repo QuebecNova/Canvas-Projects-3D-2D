@@ -1,4 +1,4 @@
-// vite.config.ts
+/// <reference types="vitest" />
 import path from 'path'
 import { defineConfig } from 'vite'
 

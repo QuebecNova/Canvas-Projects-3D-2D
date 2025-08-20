@@ -6,9 +6,9 @@ export const blackhole = {
     y: 200,
     m: 3.5e7,
     v: 0,
-    vθ: Math.convertDegToRad(90),
+    vθ: Math.degToRad(90),
     a: 0,
-    aθ: Math.convertDegToRad(0),
+    aθ: Math.degToRad(0),
     r: 200,
     color: 'black',
 }

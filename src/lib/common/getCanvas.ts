@@ -22,6 +22,12 @@ export function getCanvas(
     let ctx: CanvasRenderingContext2D | WebGLRenderingContext | null = null
     if (context === 'webgl') {
         ctx = canvas.getContext('webgl')
+        if (ctx === null) {
+            alert(
+                'Unable to initialize WebGL. Your browser or machine may not support it.'
+            )
+            return {}
+        }
     }
     if (context === '2d') {
         ctx = canvas.getContext('2d')

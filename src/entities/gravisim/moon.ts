@@ -15,8 +15,8 @@ export const moon = {
     m: 2e6,
     v: 50,
     a: 0,
-    aθ: Math.convertDegToRad(0),
-    vθ: Math.convertDegToRad(90),
+    aθ: Math.degToRad(0),
+    vθ: Math.degToRad(90),
     r: evaluate(`${600}*${1737 / 6371}`),
     color: 'gray',
 }

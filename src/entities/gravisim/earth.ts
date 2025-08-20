@@ -11,9 +11,9 @@ export const earth = {
     y: 0,
     m: 2e7,
     v: 100,
-    vθ: Math.convertDegToRad(270),
+    vθ: Math.degToRad(270),
     a: 0,
-    aθ: Math.convertDegToRad(0),
+    aθ: Math.degToRad(0),
     r: 250,
     color: 'blue',
 }

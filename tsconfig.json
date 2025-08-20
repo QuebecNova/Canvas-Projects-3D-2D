@@ -13,8 +13,13 @@
         "paths": {
             "@/*": ["src/*"]
         },
-        "types": ["vite/client"]
+        "types": ["vite/client", "vitest/globals"]
     },
-    "include": ["src/**/*.ts", "src/**/*.d.ts", "vite.config.ts"],
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.d.ts",
+        "vite.config.ts",
+        "src/lib/3D/math/test/transform.test.js"
+    ],
     "exclude": ["node_modules"]
 }

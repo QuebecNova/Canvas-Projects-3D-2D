@@ -1,18 +1,18 @@
 import { Singleton } from '@/lib/common/Singleton'
-import { Coords } from '@/types/Coords'
+import { Coords2D } from '@/types/Coords'
 import { random } from 'mathjs'
 
 type InitialArguments = {
     id: string
-    from: Coords
-    to: Coords
+    from: Coords2D
+    to: Coords2D
     color?: string
 }
 
 export class Wall implements Singleton {
     id: string
-    from: Coords
-    to: Coords
+    from: Coords2D
+    to: Coords2D
     color: string
     private static instances: Wall[] = []
 
