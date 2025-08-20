@@ -6,7 +6,7 @@ import { venus } from '@/entities/gravisim/venus'
 import { getCanvas } from '@/lib/common/getCanvas'
 import { castValueToRange } from '@/lib/common/helpers/converRange'
 import { Math } from '@/lib/common/Math'
-import { Coords } from '@/types/Coords'
+import { Coords2D } from '@/types/Coords'
 import { abs, cos, evaluate, pi, round, sin } from 'mathjs'
 import { Body } from '../Body'
 import { Gravisim } from '../Gravisim'
@@ -23,8 +23,8 @@ type InitialArguments = {
 
 type Element = {
     id: string
-    from: Coords
-    to?: Coords
+    from: Coords2D
+    to?: Coords2D
     r?: number
     color: string
 }
@@ -81,7 +81,7 @@ export class Draw2D {
         r,
         color,
     }: {
-        from: Coords
+        from: Coords2D
         r: number
         color: string
     }) {
@@ -109,7 +109,7 @@ export class Draw2D {
     }
 
     ray(
-        from: Coords,
+        from: Coords2D,
         θ: number = 0,
         length: number = (this.canvas.width * 2) / this.zoomFactor
     ) {
@@ -125,7 +125,7 @@ export class Draw2D {
         this.ctx.restore()
     }
 
-    line(from: Coords, to: Coords) {
+    line(from: Coords2D, to: Coords2D) {
         this.ctx.save()
         this.ctx.strokeStyle = 'white'
         this.ctx.lineWidth = this.getLineWidth()
@@ -277,7 +277,7 @@ export class Draw2D {
                     this.canvas.height -
                     castValueToRange(d, dMinMax, {
                         min: 0,
-                        max: this.canvas.height,
+                        max: this.canvas.height / 1.4,
                     })
                 this.wall(i - step, step, height <= 0 ? 0 : height, brightness)
             }
@@ -371,7 +371,7 @@ export class Draw2D {
         return Draw2D.elements.find((element) => element.id === id)
     }
 
-    static findOneCircleByMousePosition({ x, y }: Coords, draw2D: Draw2D) {
+    static findOneCircleByMousePosition({ x, y }: Coords2D, draw2D: Draw2D) {
         return Draw2D.elements.find((element) => {
             if (!element.r) return
             const d = element.r + draw2D.getLineWidth()
