@@ -13,7 +13,7 @@ export class Buffers {
 
         this.position = this.initPositionBuffer()
         this.color = this.initColorBuffer()
-        this.initIndexBuffer()
+        // this.initIndexBuffer()
     }
 
     private initPositionBuffer() {
@@ -85,8 +85,8 @@ export class Buffers {
             [1.0, 0.0, 0.0, 1.0], // Back face: red
             [0.0, 1.0, 0.0, 1.0], // Top face: green
             [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
-            [1.0, 1.0, 0.0, 1.0], // Right face: yellow
             [1.0, 0.0, 1.0, 1.0], // Left face: purple
+            [1.0, 1.0, 0.0, 1.0], // Right face: yellow
         ]
 
         // Convert the array of colors into a table for all the vertices.
@@ -94,8 +94,8 @@ export class Buffers {
         let colors: number[] = []
 
         for (const c of faceColors) {
-            // Repeat each color four times for the four vertices of the face
-            colors = colors.concat(c, c, c, c)
+            // Repeat each color six times for the six vertices of the face
+            colors = colors.concat(c, c, c, c, c, c)
         }
 
         const colorBuffer = this.gl.createBuffer()

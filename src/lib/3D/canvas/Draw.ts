@@ -72,21 +72,21 @@ export class Draw3D implements Singleton {
         )
         this.gl.enableVertexAttribArray(shaders.attribLocations.vertexPosition)
 
-        // var size = 4 // 4 components per iteration
-        // var type = this.gl.FLOAT // the data is 32bit floats
-        // var normalize = false // don't normalize the data
-        // var stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
-        // var offset = 0 // start at the beginning of the buffer
-        // this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffers.color);
-        // this.gl.vertexAttribPointer(
-        //     shaders.attribLocations.vertexColor,
-        //     size,
-        //     type,
-        //     normalize,
-        //     stride,
-        //     offset
-        // )
-        // this.gl.enableVertexAttribArray(shaders.attribLocations.vertexColor)
+        var size = 4 // 4 components per iteration
+        var type = this.gl.FLOAT // the data is 32bit floats
+        var normalize = false // don't normalize the data
+        var stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
+        var offset = 0 // start at the beginning of the buffer
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffers.color)
+        this.gl.vertexAttribPointer(
+            shaders.attribLocations.vertexColor,
+            size,
+            type,
+            normalize,
+            stride,
+            offset
+        )
+        this.gl.enableVertexAttribArray(shaders.attribLocations.vertexColor)
 
         const translationMatrix = Mat4.Translation.xyz(0, 0, -1.5)
         const projectionMatrix = Mat4.Projection(
@@ -104,7 +104,7 @@ export class Draw3D implements Singleton {
             false,
             projectionMatrix
                 .multiply(translationMatrix)
-                .multiply(rotationMatrix)
+                .multiply(rotationMatrix!)
                 .multiply(scalingMatrix)
                 .toArray()
         )
