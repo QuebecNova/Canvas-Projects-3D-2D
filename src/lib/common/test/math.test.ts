@@ -59,3 +59,156 @@ describe('Vector by matrix multiplication', () => {
         expect(result[2]).toBeCloseTo(32.4949, tolerance)
     })
 })
+
+describe('Matrix inversion', () => {
+    test('1. m2x2', () => {
+        const m = new Matrix([
+            [-1, 1.5],
+            [1, -1],
+        ])
+        const mInverted = m.invert()
+        expect(mInverted).toBeTruthy()
+        const I = mInverted!.multiply(m)
+
+        expect(I[0][0]).toEqual(1)
+        expect(I[0][1]).toEqual(0)
+
+        expect(I[1][0]).toEqual(0)
+        expect(I[1][1]).toEqual(1)
+    })
+
+    test('2. m2x2', () => {
+        const m = new Matrix([
+            [0, 1.5],
+            [2, -1],
+        ])
+        const mInverted = m.invert()
+        expect(mInverted).toBeTruthy()
+        const I = mInverted!.multiply(m)
+
+        expect(I[0][0]).toBeCloseTo(1, tolerance)
+        expect(I[0][1]).toBeCloseTo(0, tolerance)
+
+        expect(I[1][0]).toBeCloseTo(0, tolerance)
+        expect(I[1][1]).toBeCloseTo(1, tolerance)
+    })
+
+    test('3. m2x2', () => {
+        const m = new Matrix([
+            [0, 1.5],
+            [2, 0],
+        ])
+        const mInverted = m.invert()
+        expect(mInverted).toBeTruthy()
+        const I = mInverted!.multiply(m)
+
+        expect(I[0][0]).toBeCloseTo(1, tolerance)
+        expect(I[0][1]).toBeCloseTo(0, tolerance)
+
+        expect(I[1][0]).toBeCloseTo(0, tolerance)
+        expect(I[1][1]).toBeCloseTo(1, tolerance)
+    })
+
+    test('m3x3', () => {
+        const m = new Matrix([
+            [-3, 2, -1],
+            [6, -2, 5],
+            [3, -4, 4],
+        ])
+        const mInverted = m.invert()
+        expect(mInverted).toBeTruthy()
+        const I = mInverted!.multiply(m)
+
+        expect(I[0][0]).toBeCloseTo(1, tolerance)
+        expect(I[0][1]).toBeCloseTo(0, tolerance)
+        expect(I[0][2]).toBeCloseTo(0, tolerance)
+
+        expect(I[1][0]).toBeCloseTo(0, tolerance)
+        expect(I[1][1]).toBeCloseTo(1, tolerance)
+        expect(I[1][2]).toBeCloseTo(0, tolerance)
+
+        expect(I[2][0]).toBeCloseTo(0, tolerance)
+        expect(I[2][1]).toBeCloseTo(0, tolerance)
+        expect(I[2][2]).toBeCloseTo(1, tolerance)
+    })
+
+    test('non-invertable m3x3', () => {
+        const m = new Matrix([
+            [1, 1, 1],
+            [1, 1, 0],
+            [0, 0, 1],
+        ])
+        const mInverted = m.invert()
+        expect(mInverted).toBeNull()
+    })
+
+    test('m4x4', () => {
+        const m = new Matrix([
+            [5, 6, 6, 8],
+            [2, 2, 2, 8],
+            [6, 6, 2, 8],
+            [2, 3, 6, 7],
+        ])
+        const mInverted = m.invert()
+        expect(mInverted).toBeTruthy()
+        const I = mInverted!.multiply(m)
+        expect(I[0][0]).toBeCloseTo(1, tolerance)
+        expect(I[0][1]).toBeCloseTo(0, tolerance)
+        expect(I[0][2]).toBeCloseTo(0, tolerance)
+        expect(I[0][3]).toBeCloseTo(0, tolerance)
+
+        expect(I[1][0]).toBeCloseTo(0, tolerance)
+        expect(I[1][1]).toBeCloseTo(1, tolerance)
+        expect(I[1][2]).toBeCloseTo(0, tolerance)
+        expect(I[1][3]).toBeCloseTo(0, tolerance)
+
+        expect(I[2][0]).toBeCloseTo(0, tolerance)
+        expect(I[2][1]).toBeCloseTo(0, tolerance)
+        expect(I[2][2]).toBeCloseTo(1, tolerance)
+        expect(I[2][3]).toBeCloseTo(0, tolerance)
+
+        expect(I[3][0]).toBeCloseTo(0, tolerance)
+        expect(I[3][1]).toBeCloseTo(0, tolerance)
+        expect(I[3][2]).toBeCloseTo(0, tolerance)
+        expect(I[3][3]).toBeCloseTo(1, tolerance)
+    })
+})
+
+describe('Matrix determinant', () => {
+    test('m2x2', () => {
+        const m = new Matrix([
+            [-1, 1.5],
+            [1, -1],
+        ])
+        const determinant = m.determinant()
+        expect(determinant).toBeCloseTo(-0.5, tolerance)
+    })
+    test('m3x3', () => {
+        const m = new Matrix([
+            [4.5, 5, 6.3],
+            [6, 5, 4.56],
+            [4, 6, 5],
+        ])
+        const determinant = m.determinant()
+        expect(determinant).toBeCloseTo(31.38, tolerance)
+    })
+    test('non-invertable m3x3', () => {
+        const m = new Matrix([
+            [1, 1, 1],
+            [1, 1, 0],
+            [0, 0, 1],
+        ])
+        const determinant = m.determinant()
+        expect(determinant).toBeCloseTo(0, tolerance)
+    })
+    test('m4x4', () => {
+        const m = new Matrix([
+            [5, 6, 6, 8],
+            [2, 2, 2, 8],
+            [6, 6, 2, 8],
+            [2, 3, 6, 7],
+        ])
+        const determinant = m.determinant()
+        expect(determinant).toBeCloseTo(-8, tolerance)
+    })
+})
