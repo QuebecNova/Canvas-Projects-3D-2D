@@ -11,13 +11,30 @@ export class Shaders {
     static fragment = fragment
     private gl: WebGLRenderingContext
     program?: WebGLProgram
-    attribLocations: { vertexPosition: number; vertexColor: number } = {
+    attribLocations: {
+        vertexPosition: number
+        vertexColor: number
+        vertexTexture: number
+        vertexBufferMatrix: number
+    } = {
         vertexPosition: 0,
         vertexColor: 0,
+        vertexTexture: 0,
+        vertexBufferMatrix: 0,
     }
     uniformLocations: {
-        matrix: WebGLUniformLocation | null
-    } = { matrix: null }
+        projectionViewMatrix: WebGLUniformLocation | null
+        viewMatrix: WebGLUniformLocation | null
+        translationMatrix: WebGLUniformLocation | null
+        rotationMatrix: WebGLUniformLocation | null
+        scaleMatrix: WebGLUniformLocation | null
+    } = {
+        projectionViewMatrix: null,
+        viewMatrix: null,
+        translationMatrix: null,
+        rotationMatrix: null,
+        scaleMatrix: null,
+    }
 
     constructor({ gl }: InitialArguments) {
         this.gl = gl
@@ -28,9 +45,27 @@ export class Shaders {
         this.attribLocations = {
             vertexPosition: this.gl.getAttribLocation(program, 'a_position'),
             vertexColor: this.gl.getAttribLocation(program, 'a_color'),
+            vertexTexture: this.gl.getAttribLocation(program, 'a_texcoord'),
+            vertexBufferMatrix: this.gl.getAttribLocation(
+                program,
+                'a_buffer_matrix'
+            ),
         }
         this.uniformLocations = {
-            matrix: this.gl.getUniformLocation(program, 'u_matrix'),
+            projectionViewMatrix: this.gl.getUniformLocation(
+                program,
+                'u_projection_view_matrix'
+            ),
+            viewMatrix: this.gl.getUniformLocation(program, 'u_view_matrix'),
+            translationMatrix: this.gl.getUniformLocation(
+                program,
+                'u_translation_matrix'
+            ),
+            rotationMatrix: this.gl.getUniformLocation(
+                program,
+                'u_rotation_matrix'
+            ),
+            scaleMatrix: this.gl.getUniformLocation(program, 'u_scale_matrix'),
         }
     }
 

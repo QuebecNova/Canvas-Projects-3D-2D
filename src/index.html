@@ -22,9 +22,23 @@
                 margin-top: 10px;
             }
             .canvas-contanier {
+                position: relative;
                 display: flex;
                 justify-content: center;
                 min-height: 90vh;
+            }
+            #stats {
+                color: white;
+                display: flex;
+                justify-content: space-between;
+                pointer-events: none;
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+                font-size: large;
+                position: absolute;
+                z-index: 100;
+                top: 10px;
+                left: 20px;
+                width: calc(100% - 40px);
             }
         </style>
         <script src="./canvas.ts" type="module"></script>

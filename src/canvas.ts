@@ -41,9 +41,7 @@ function main3D() {
     if (!canvas || !startDate || !gl) return
 
     draw3D = new Draw3D({ canvas, gl, startDate })
-    setInterval(() => {
-        draw3D?.main(startDate)
-    }, 60 / 1000)
+    draw3D?.main(startDate, 0)
 }
 
 window.addEventListener('load', () => {
@@ -55,7 +53,7 @@ window.addEventListener('load', () => {
             main2D(mode === Modes2D.GRAVISIM ? 0.1 : 1)
         )
     } else {
-        main3D()
+        window.requestAnimationFrame(main3D)
     }
 })
 

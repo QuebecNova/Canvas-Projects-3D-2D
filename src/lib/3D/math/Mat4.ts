@@ -11,6 +11,15 @@ export class Mat4 {
                 [0, 0, 0, 1],
             ]),
     }
+    static TranslationFlipped = {
+        xyz: (tx: number, ty: number, tz: number) =>
+            new Matrix([
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [tx, ty, tz, 1],
+            ]),
+    }
     static Scaling = {
         xyz: (sx: number, sy: number, sz: number) =>
             new Matrix([
@@ -57,13 +66,28 @@ export class Mat4 {
         const f = evaluate(`1/tan(${fov}/2)`)
         const x = evaluate(`${aspectRatio}*${f}`)
         const y = f
-        const q = evaluate(`${zFar}/(${zFar}-${zNear})`)
+        const q = -evaluate(`${zFar}/(${zFar}-${zNear})`)
         const z2 = -evaluate(`${zNear}*${q}`)
+        const zClipFactor = 0.001
         return new Matrix([
             [x, 0, 0, 0],
             [0, y, 0, 0],
-            [0, 0, q, 1],
+            [0, 0, q, zClipFactor],
             [0, 0, z2, 0],
         ])
+        // return new Matrix([
+        //     [f, 0, 0, 0],
+        //     [0, y, 0, 0],
+        //     [0, 0, q, zClipFactor],
+        //     [0, 0, 0, 1],
+        // ])
+        //     var f = Math.tan(Math.PI * 0.5 - 0.5 * fov);
+        // var rangeInv = 1.0 / (zNear - zFar);
+        //     return new Matrix([
+        //   [f / aspectRatio, 0, 0, 0],
+        //   [0, f, 0, 0],
+        //   [0, 0, (zNear + zFar) * rangeInv, -1],
+        //   [0, 0, zNear * zFar * rangeInv * 2, 0]
+        // ])
     }
 }
