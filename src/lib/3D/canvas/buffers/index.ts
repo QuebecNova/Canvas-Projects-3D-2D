@@ -35,7 +35,7 @@ export class Buffers {
                 count: Buffers.getInstancesCount(instances),
             },
         }
-        this.texture = this.loadTexture('/lib/3D/textures/block/atlas.png')
+        this.texture = this.loadTexture('./textures/blocks/atlas.png')
     }
 
     private initPositionBuffer() {
