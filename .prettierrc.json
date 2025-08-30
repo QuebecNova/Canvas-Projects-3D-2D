@@ -3,5 +3,6 @@
     "tabWidth": 4,
     "semi": false,
     "singleQuote": true,
-    "plugins": ["prettier-plugin-organize-imports"]
+    "plugins": ["prettier-plugin-organize-imports"],
+    "printWidth": 120
 }

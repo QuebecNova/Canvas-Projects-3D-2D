@@ -11,20 +11,20 @@ export function getCanvas(
 export function getCanvas(
     id: string,
     context: 'webgl'
-): ReturnValue<WebGLRenderingContext>
+): ReturnValue<WebGL2RenderingContext>
 
 export function getCanvas(
     id: string,
     context: 'webgl' | '2d'
-): ReturnValue<WebGLRenderingContext | CanvasRenderingContext2D> {
+): ReturnValue<WebGL2RenderingContext | CanvasRenderingContext2D> {
     const canvas = document.getElementById(id) as HTMLCanvasElement
     if (!canvas) return {}
-    let ctx: CanvasRenderingContext2D | WebGLRenderingContext | null = null
+    let ctx: CanvasRenderingContext2D | WebGL2RenderingContext | null = null
     if (context === 'webgl') {
-        ctx = canvas.getContext('webgl')
+        ctx = canvas.getContext('webgl2', {antialias: false})
         if (ctx === null) {
             alert(
-                'Unable to initialize WebGL. Your browser or machine may not support it.'
+                'Unable to initialize WebGL2. Your browser or machine may not support it.'
             )
             return {}
         }

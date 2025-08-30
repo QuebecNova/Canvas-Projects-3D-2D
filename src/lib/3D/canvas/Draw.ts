@@ -4,22 +4,21 @@ import { Singleton } from '@/lib/common/Singleton'
 import { cos, pi, round, sin } from 'mathjs'
 import { Mat4 } from '../math/Mat4'
 import { Buffers } from './buffers'
-import { Chunks } from './Chunks'
+import { Chunks } from './chunks'
 import { Shaders } from './shaders'
 
 type InitialArguments = {
     canvas: HTMLCanvasElement
-    gl: WebGLRenderingContext
+    gl: WebGL2RenderingContext
     startDate?: Date
 }
 
 export class Draw3D implements Singleton {
     private static instances: Draw3D[] = []
     private canvas: HTMLCanvasElement
-    private gl: WebGLRenderingContext
-    private ext: ANGLE_instanced_arrays
+    private gl: WebGL2RenderingContext
     private statsElement: HTMLDivElement
-    static renderDistance: number = 2
+    static renderDistance: number = 4
     static scale = 1
     deltaTime: number = 0
     id: string
@@ -28,7 +27,15 @@ export class Draw3D implements Singleton {
     fov: number = pi / 2
     zNear: number = 1.0
     zFar: number = 2000.0
-    camera = { x: 0, y: 6, z: 0, α: 0, β: 0, speed: 7, sensitivity: 0.02 }
+    camera = {
+        x: Chunks.width / 2,
+        y: Chunks.height + 2,
+        z: Chunks.width / 2,
+        α: 0,
+        β: 0,
+        speed: 7,
+        sensitivity: 0.02,
+    }
     keyPressed = {
         KeyW: false,
         KeyA: false,
@@ -53,16 +60,14 @@ export class Draw3D implements Singleton {
         this.addEventListeners()
         this.buffers = new Buffers({ gl: this.gl })
         this.shaders = new Shaders({ gl: this.gl })
-        const ext = this.gl.getExtension('ANGLE_instanced_arrays')
-        this.ext = ext!
         this.chunks = new Chunks({
             buffers: this.buffers,
             shaders: this.shaders,
-            ext: this.ext,
             gl: this.gl,
+            Draw3D: this
         })
         this.stats()
-        if (!this.shaders.program || !ext) return
+        if (!this.shaders.program) return
 
         const instance = this.findOne(this.id)
         if (instance) {
@@ -88,9 +93,6 @@ export class Draw3D implements Singleton {
         this.enableAttribs()
         this.setMatrices()
 
-        if (this.chunks.chunks.length < Chunks.getMaxChunksCount()) {
-            this.chunks.generate()
-        }
         this.chunks.draw()
 
         window.requestAnimationFrame((now) => this.main(startDate, now))
@@ -113,7 +115,7 @@ export class Draw3D implements Singleton {
     }
 
     private setMatrices() {
-        // const r = this.elapsedTime * (pi / 4)
+        // const r = this.elapsedTime * (pi / 16)
         // Compute a matrix for the camera
         const cameraTranslationMatrix = Mat4.Translation.xyz(
             this.camera.x,
@@ -156,45 +158,23 @@ export class Draw3D implements Singleton {
     }
 
     private enableAttribs() {
-        var size = 3 // 2 components per iteration
-        var type = this.gl.FLOAT // the data is 32bit floats
-        var normalize = false // don't normalize the data
-        var stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
-        var offset = 0 // start at the beginning of the buffer
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.position)
-        this.gl.vertexAttribPointer(
-            this.shaders.attribLocations.vertexPosition,
-            size,
-            type,
-            normalize,
-            stride,
-            offset
-        )
-        this.gl.enableVertexAttribArray(
-            this.shaders.attribLocations.vertexPosition
-        )
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.textureCoords)
-        // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
-        var size = 2 // 2 components per iteration
-        var type = this.gl.FLOAT // the data is 32bit floats
-        var normalize = false // don't normalize the data
-        var stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
-        var offset = 0 // start at the beginning of the buffer
-        this.gl.vertexAttribPointer(
-            this.shaders.attribLocations.vertexTexture,
-            size,
-            type,
-            normalize,
-            stride,
-            offset
-        )
-        this.gl.enableVertexAttribArray(
-            this.shaders.attribLocations.vertexTexture
-        )
+        this.enableAttrib(3,this.buffers.position,this.shaders.attribLocations.vertexPosition)
+        this.enableAttrib(2,this.buffers.textureCoords,this.shaders.attribLocations.vertexTexture)
+        this.enableAttrib(3,this.buffers.normals,this.shaders.attribLocations.vertexNormal)
     }
 
-    setupCanvas() {
+    enableAttrib(size: number, buffer: WebGLBuffer, loc: number) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
+        // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
+        const type = this.gl.FLOAT // the data is 32bit floats
+        const normalize = false // don't normalize the data
+        const stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
+        const offset = 0 // start at the beginning of the buffer
+        this.gl.vertexAttribPointer(loc, size, type, normalize, stride, offset)
+        this.gl.enableVertexAttribArray(loc)
+    }
+
+    private setupCanvas() {
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
         this.gl.enable(this.gl.CULL_FACE)
         this.gl.enable(this.gl.DEPTH_TEST)
@@ -340,12 +320,12 @@ export class Draw3D implements Singleton {
         },
     }
 
-    clearCanvas() {
+    private clearCanvas() {
         this.aspectRatio = this.gl.canvas.height / this.gl.canvas.width
         this.canvas.height = window.innerHeight - 100
         this.canvas.width = window.innerWidth - 20
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
-        this.gl.clearColor(0.1, 0.1, 0.3, 1.0)
+        this.gl.clearColor(130 / 255, 183 / 255, 254 / 255, 1.0)
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
         this.gl.clearDepth(this.gl.DEPTH_BUFFER_BIT)
     }

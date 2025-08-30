@@ -1,20 +1,27 @@
-import { Chunks } from '../Chunks'
+import { Chunks } from '../chunks'
 
 type InitialArguments = {
-    gl: WebGLRenderingContext
+    gl: WebGL2RenderingContext
 }
 
 export class Buffers {
-    private gl: WebGLRenderingContext
+    private gl: WebGL2RenderingContext
 
     position: WebGLBuffer
     color: WebGLBuffer
     textureCoords: WebGLBuffer
+    normals: WebGLBuffer
+    modelMatrix: WebGLBuffer
+    block: WebGLBuffer
     matrices: {
         buffer: WebGLBuffer
         array: Float32Array<ArrayBuffer>[]
         data: Float32Array<ArrayBuffer>
-        instances: { x: number; y: number; z: number; count: number }
+    }
+    blocks: {
+        buffer: WebGLBuffer
+        array: Float32Array<ArrayBuffer>[]
+        data: Float32Array<ArrayBuffer>
     }
     texture: WebGLTexture
 
@@ -24,40 +31,42 @@ export class Buffers {
         this.position = this.initPositionBuffer()
         this.color = this.initColorBuffer()
         this.textureCoords = this.initTextureCoordsBuffer()
-        const { matrices, matrixBuffer, matrixData, instances } =
-            this.initMatricesBuffer()
+        this.normals = this.initNormalsBuffer()
+        this.modelMatrix = this.createStaticBuffer([])
+        this.block = this.createStaticBuffer([])
+        const { matrices, matrixBuffer, matrixData } = this.initMatricesBuffer()
         this.matrices = {
             array: matrices,
             buffer: matrixBuffer,
             data: matrixData,
-            instances: {
-                ...instances,
-                count: Buffers.getInstancesCount(instances),
-            },
+        }
+        const { blocks, blocksBuffer, blocksData } = this.initBlocksBuffer()
+        this.blocks = {
+            array: blocks,
+            buffer: blocksBuffer,
+            data: blocksData,
         }
         this.texture = this.loadTexture('./textures/blocks/atlas.png')
     }
 
     private initPositionBuffer() {
-        const top = 1.00001
-        const bot = -0.00001
         //prettier-ignore
         const positions = [
             //top
-            0,top,0,
-            1,top,1,
-            0,top,1,
-            0,top,0,
-            1,top,0,
-            1,top,1,
+            0,1,0,
+            1,1,1,
+            0,1,1,
+            0,1,0,
+            1,1,0,
+            1,1,1,
 
             //bottom
-            0,bot,1,
-            1,bot,0,
-            0,bot,0,
-            0,bot,1,
-            1,bot,1,
-            1,bot,0,
+            0,0,1,
+            1,0,0,
+            0,0,0,
+            0,0,1,
+            1,0,1,
+            1,0,0,
 
             //right
             0,0,1,
@@ -92,15 +101,58 @@ export class Buffers {
             1,1,0,
         ]
 
-        const positionBuffer = this.gl.createBuffer()
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer)
-        this.gl.bufferData(
-            this.gl.ARRAY_BUFFER,
-            new Float32Array(positions),
-            this.gl.STATIC_DRAW
-        )
+        return this.createStaticBuffer(positions)
+    }
 
-        return positionBuffer
+    private initNormalsBuffer() {
+        //prettier-ignore
+        const normals = [
+            // Top
+            0,1,0,
+            0,1,0,
+            0,1,0,
+            0,1,0,
+            0,1,0,
+            0,1,0,
+            // Bottom
+            0,-1,0,
+            0,-1,0,
+            0,-1,0,
+            0,-1,0,
+            0,-1,0,
+            0,-1,0,
+            // Left
+            -1,0,0,
+            -1,0,0,
+            -1,0,0,
+            -1,0,0,
+            -1,0,0,
+            -1,0,0,
+            // Front
+            0,0,1,
+            0,0,1,
+            0,0,1,
+            0,0,1,
+            0,0,1,
+            0,0,1,
+
+            // Right
+            1,0,0,
+            1,0,0,
+            1,0,0,
+            1,0,0,
+            1,0,0,
+            1,0,0,
+            // Back
+            0,0,-1,
+            0,0,-1,
+            0,0,-1,
+            0,0,-1,
+            0,0,-1,
+            0,0,-1,
+        ]
+
+        return this.createStaticBuffer(normals)
     }
 
     //Not used
@@ -186,17 +238,7 @@ export class Buffers {
             1, 0,
         ]
 
-        // Convert the array of colors into a table for all the vertices.
-
-        const textureBuffer = this.gl.createBuffer()
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, textureBuffer)
-        this.gl.bufferData(
-            this.gl.ARRAY_BUFFER,
-            new Float32Array(textureCoords),
-            this.gl.STATIC_DRAW
-        )
-
-        return textureBuffer
+        return this.createStaticBuffer(textureCoords)
     }
 
     private loadTexture(url: string) {
@@ -205,56 +247,54 @@ export class Buffers {
 
         const level = 0
         const internalFormat = this.gl.RGBA
-        const width = 1
-        const height = 1
+        const width = 512
+        const height = 512
         const border = 0
         const srcFormat = this.gl.RGBA
         const srcType = this.gl.UNSIGNED_BYTE
-        const pixel = new Uint8Array([0, 0, 0, 1.0])
-        this.gl.texImage2D(
-            this.gl.TEXTURE_2D,
-            level,
-            internalFormat,
+        this.gl.texImage2D(this.gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, null)
+
+        const FRAMEBUFFER = {
+            RENDERBUFFER: 0,
+            COLORBUFFER: 1,
+        }
+        const fb = [this.gl.createFramebuffer(), this.gl.createFramebuffer()]
+        const colorRenderbuffer = this.gl.createRenderbuffer()
+
+        this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, colorRenderbuffer)
+
+        this.gl.renderbufferStorageMultisample(
+            this.gl.RENDERBUFFER,
+            this.gl.getParameter(this.gl.MAX_SAMPLES),
+            this.gl.RGBA8,
             width,
-            height,
-            border,
-            srcFormat,
-            srcType,
-            pixel
+            height
         )
+
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb[FRAMEBUFFER.RENDERBUFFER])
+
+        this.gl.framebufferRenderbuffer(
+            this.gl.FRAMEBUFFER,
+            this.gl.COLOR_ATTACHMENT0,
+            this.gl.RENDERBUFFER,
+            colorRenderbuffer
+        )
+
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb[FRAMEBUFFER.COLORBUFFER])
+
+        this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, texture, 0)
+
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
 
         const image = new Image()
         image.onload = () => {
             this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-            this.gl.texImage2D(
-                this.gl.TEXTURE_2D,
-                level,
-                internalFormat,
-                srcFormat,
-                srcType,
-                image
-            )
+            this.gl.texImage2D(this.gl.TEXTURE_2D, level, internalFormat, srcFormat, srcType, image)
 
-            this.gl.texParameteri(
-                this.gl.TEXTURE_2D,
-                this.gl.TEXTURE_WRAP_S,
-                this.gl.CLAMP_TO_EDGE
-            )
-            this.gl.texParameteri(
-                this.gl.TEXTURE_2D,
-                this.gl.TEXTURE_WRAP_T,
-                this.gl.CLAMP_TO_EDGE
-            )
-            this.gl.texParameteri(
-                this.gl.TEXTURE_2D,
-                this.gl.TEXTURE_MIN_FILTER,
-                this.gl.LINEAR
-            )
-            this.gl.texParameteri(
-                this.gl.TEXTURE_2D,
-                this.gl.TEXTURE_MAG_FILTER,
-                this.gl.NEAREST
-            )
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST)
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST)
         }
         image.src = url
 
@@ -262,36 +302,47 @@ export class Buffers {
     }
 
     private initMatricesBuffer() {
-        const instances = { x: Chunks.size, y: Chunks.height, z: Chunks.size }
-        const matrixData = new Float32Array(
-            Buffers.getInstancesCount(instances) * 16
-        )
+        const arrLength = 16
+        const totalBlocksCount = Chunks.getTotalBlocksCount()
+        const matrixData = new Float32Array(totalBlocksCount * arrLength)
         const matrices = []
-        for (let i = 0; i < Buffers.getInstancesCount(instances); ++i) {
-            const byteOffsetToMatrix = i * 16 * 4
-            const numFloatsForView = 16
-            matrices.push(
-                new Float32Array(
-                    matrixData.buffer,
-                    byteOffsetToMatrix,
-                    numFloatsForView
-                )
-            )
+        for (let i = 0; i < totalBlocksCount; ++i) {
+            const byteOffsetToMatrix = i * arrLength * 4
+            const numFloatsForView = arrLength
+            matrices.push(new Float32Array(matrixData.buffer, byteOffsetToMatrix, numFloatsForView))
         }
         const matrixBuffer = this.gl.createBuffer()
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, matrixBuffer)
         // just allocate the buffer
-        this.gl.bufferData(
-            this.gl.ARRAY_BUFFER,
-            matrixData.byteLength,
-            this.gl.DYNAMIC_DRAW
-        )
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, matrixData.byteLength, this.gl.DYNAMIC_DRAW)
 
-        return { matrices, matrixData, matrixBuffer, instances }
+        return { matrices, matrixData, matrixBuffer }
     }
 
-    static getInstancesCount({ x, y, z }: { x: number; y: number; z: number }) {
-        const chunks = Chunks.getMaxChunksCount()
-        return x * y * z * chunks
+    // 0: id (same as texture)
+    // 1: reserved for future uses...
+    private initBlocksBuffer() {
+        const arrLength = 2
+        const totalBlocksCount = Chunks.getTotalBlocksCount()
+        const blocksData = new Float32Array(totalBlocksCount * arrLength)
+        const blocks = []
+        for (let i = 0; i < totalBlocksCount; ++i) {
+            const byteOffsetToBlocks = i * arrLength * 4
+            const numFloatsForView = arrLength
+            blocks.push(new Float32Array(blocksData.buffer, byteOffsetToBlocks, numFloatsForView))
+        }
+        const blocksBuffer = this.gl.createBuffer()
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, blocksBuffer)
+        // just allocate the buffer
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, blocksData.byteLength, this.gl.DYNAMIC_DRAW)
+
+        return { blocks, blocksData, blocksBuffer }
+    }
+
+    private createStaticBuffer(arr: number[]) {
+        const buffer = this.gl.createBuffer()
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(arr), this.gl.STATIC_DRAW)
+        return buffer
     }
 }

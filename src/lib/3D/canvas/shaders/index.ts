@@ -3,24 +3,32 @@ import fragment from './fragment.frag?raw'
 import vertex from './vertex.vert?raw'
 
 type InitialArguments = {
-    gl: WebGLRenderingContext
+    gl: WebGL2RenderingContext
 }
 
 export class Shaders {
     static vertex = vertex
     static fragment = fragment
-    private gl: WebGLRenderingContext
+    private gl: WebGL2RenderingContext
     program?: WebGLProgram
     attribLocations: {
         vertexPosition: number
         vertexColor: number
         vertexTexture: number
-        vertexBufferMatrix: number
+        vertexModelMatrix: number
+        vertexBlock: number
+        vertexBufferBlocks: number
+        vertexBufferMatrix: number,
+        vertexNormal: number
     } = {
-        vertexPosition: 0,
-        vertexColor: 0,
-        vertexTexture: 0,
-        vertexBufferMatrix: 0,
+        vertexPosition: -1,
+        vertexColor: -1,
+        vertexTexture: -1,
+        vertexModelMatrix: -1,
+        vertexBufferBlocks: -1,
+        vertexBufferMatrix: -1,
+        vertexNormal: -1,
+        vertexBlock: -1,
     }
     uniformLocations: {
         projectionViewMatrix: WebGLUniformLocation | null
@@ -46,10 +54,23 @@ export class Shaders {
             vertexPosition: this.gl.getAttribLocation(program, 'a_position'),
             vertexColor: this.gl.getAttribLocation(program, 'a_color'),
             vertexTexture: this.gl.getAttribLocation(program, 'a_texcoord'),
+            vertexModelMatrix: this.gl.getAttribLocation(
+                program,
+                'a_model_matrix'
+            ),
+            vertexBlock: this.gl.getAttribLocation(
+                program,
+                'a_block'
+            ),
+            vertexBufferBlocks: this.gl.getAttribLocation(
+                program,
+                'a_blocks'
+            ),
             vertexBufferMatrix: this.gl.getAttribLocation(
                 program,
                 'a_buffer_matrix'
             ),
+            vertexNormal: this.gl.getAttribLocation(program, 'a_normal')
         }
         this.uniformLocations = {
             projectionViewMatrix: this.gl.getUniformLocation(

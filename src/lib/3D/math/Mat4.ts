@@ -11,14 +11,15 @@ export class Mat4 {
                 [0, 0, 0, 1],
             ]),
     }
+    // To send to webgl
     static TranslationFlipped = {
         xyz: (tx: number, ty: number, tz: number) =>
-            new Matrix([
-                [1, 0, 0, 0],
-                [0, 1, 0, 0],
-                [0, 0, 1, 0],
-                [tx, ty, tz, 1],
-            ]),
+            [
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                tx, ty, tz, 1,
+            ]
     }
     static Scaling = {
         xyz: (sx: number, sy: number, sz: number) =>
