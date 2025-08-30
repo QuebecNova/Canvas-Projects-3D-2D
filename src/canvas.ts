@@ -1,7 +1,7 @@
 import { Modes2D, Modes3D } from './enums/Modes'
-import { Draw2D } from './lib/2D/canvas/Draw'
-import { Draw3D } from './lib/3D/canvas/Draw'
-import { getCanvas } from './lib/common/getCanvas'
+import { Draw2D } from './2D/canvas/Draw'
+import { Draw3D } from './3D/canvas/Draw'
+import { getCanvas } from './common/getCanvas'
 
 let startDate: Date
 
