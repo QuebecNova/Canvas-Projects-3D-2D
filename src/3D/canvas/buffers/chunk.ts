@@ -6,11 +6,11 @@ export class ChunkBuffers {
     private gl: WebGL2RenderingContext
 
     vboBuffer: WebGLBuffer
-    offset: number
+    count: number
 
-    constructor(gl: WebGL2RenderingContext, vbo: number[], offset: number) {
+    constructor(gl: WebGL2RenderingContext, vbo: number[], count: number) {
         this.gl = gl
-        this.offset = offset
+        this.count = count
         this.vboBuffer = this.createStaticBuffer(vbo)
     }
 
@@ -31,6 +31,8 @@ export const getBlockVertecies = (x:number,y:number,z:number, id: number, ob: nu
     const front = 3
     const left = 4
     const back = 5
+    //42 per side => 21 per triangle
+    //252 total
     if ((ob&TOP) === 0) {
         positions.push(
             x+0,y+1,z+0,

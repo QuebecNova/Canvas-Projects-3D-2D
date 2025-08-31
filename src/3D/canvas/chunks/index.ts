@@ -195,7 +195,7 @@ export class Chunks {
         this.chunks.forEach((chunk) => {
             if (chunk.buffers) {
                 this.bindBuffer(chunk.buffers.vboBuffer)
-                this.gl.drawArrays(this.gl.TRIANGLES, 0, 36 * chunk.buffers.offset)
+                this.gl.drawArrays(this.gl.TRIANGLES, 0, chunk.buffers.count)
                 this.disableAttribs()
             }
         })
@@ -253,7 +253,7 @@ export class Chunks {
 
     private setVBOs(chunk: Chunk) {
         const vbo: number[] = []
-        let offset = 0
+        let count = 0
         chunk.blocks.forEach((block) => {
             if (block.obscuredDirection !== BlockBits.IS_NOT_VISIBLE && block.id !== Blocks.air.id) {
                 const vertecies = getBlockVertecies(block.x, block.y, block.z, block.id, block.obscuredDirection)
@@ -261,10 +261,10 @@ export class Chunks {
                 if (!chunk.buffers) {
                     this.setBlock(block)
                 }
-                offset++
+                count += vertecies.length / 7
             }
         })
-        chunk.buffers = new ChunkBuffers(this.gl, vbo, offset)
+        this.chunks[chunk.index].buffers = new ChunkBuffers(this.gl, vbo, count)
         vbo.length = 0
     }
 
