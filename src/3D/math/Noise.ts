@@ -139,10 +139,12 @@ export class SimplexNoise {
      */
     evaluate2D(x: number, z: number) {
         let value = 0
+        let freq = this.frequency
+        let amp = this.amplitude
         for (let i = 0; i < this.octaves; i++) {
-            value += this.amplitude * ((this.noise2D(x * this.frequency, z * this.frequency) + 1) / 2)
-            this.amplitude *= this.persistence
-            this.frequency *= this.lacunarity
+            value += amp * ((this.noise2D(x * freq, z * freq) + 1) / 2)
+            amp *= this.persistence
+            freq *= this.lacunarity
         }
         return value + this.elevation
     }
