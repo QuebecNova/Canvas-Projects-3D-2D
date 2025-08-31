@@ -32,7 +32,7 @@ export class Bioms {
                 frequency: 1 / 70,
                 persistence: 1.7,
                 lacunarity: 1.2,
-                amplitude: 20,
+                amplitude: 25,
                 elevation: -10,
                 seed,
             }),

@@ -18,7 +18,7 @@ export class Draw3D implements Singleton {
     private canvas: HTMLCanvasElement
     private gl: WebGL2RenderingContext
     private statsElement: HTMLDivElement
-    static renderDistance: number = 3
+    static renderDistance: number = 10
     static scale = 1
     deltaTime: number = 0
     id: string
@@ -61,13 +61,10 @@ export class Draw3D implements Singleton {
         this.buffers = new Buffers({ gl: this.gl })
         this.shaders = new Shaders({ gl: this.gl })
         this.chunks = new Chunks({
-            buffers: this.buffers,
             shaders: this.shaders,
             gl: this.gl,
-            Draw3D: this
         })
         this.stats()
-        if (!this.shaders.program) return
 
         const instance = this.findOne(this.id)
         if (instance) {
@@ -87,8 +84,6 @@ export class Draw3D implements Singleton {
             (newDate.getTime() - (startDate || newDate).getTime()) / 1000
         this.move(deltaTime)
         this.clearCanvas()
-
-        this.gl.useProgram(this.shaders.program!)
 
         this.enableAttribs()
         this.setMatrices()
@@ -158,14 +153,16 @@ export class Draw3D implements Singleton {
     }
 
     private enableAttribs() {
-        this.enableAttrib(3,this.buffers.position,this.shaders.attribLocations.vertexPosition)
-        this.enableAttrib(2,this.buffers.textureCoords,this.shaders.attribLocations.vertexTexture)
-        this.enableAttrib(3,this.buffers.normals,this.shaders.attribLocations.vertexNormal)
+        this.buffers.normals.forEach((normal, face) => {
+            this.gl.uniform3fv(
+                this.shaders.uniformLocations.normal(face),
+                normal
+            )
+        })
     }
 
     enableAttrib(size: number, buffer: WebGLBuffer, loc: number) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
-        // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
         const type = this.gl.FLOAT // the data is 32bit floats
         const normalize = false // don't normalize the data
         const stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position

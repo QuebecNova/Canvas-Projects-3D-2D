@@ -38,13 +38,10 @@ export type Block = {
     id: number
     chunkIndex: number
     type: BlockTypes
-    instanceId: number
     obscuredDirection: number
 }
 
 export type Blocks = Map<BigInt, Block>
-
-export type KeyAndBlock = {key: BigInt, block: Block}
 
 export const BlockBits = {
     FRONT: 1 << 0,

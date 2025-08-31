@@ -1,6 +1,6 @@
 export class ErrorHandler {
     static throw(text: string) {
-        alert(text)
+        throw new Error(text)
     }
     static log(text: string) {
         try {

@@ -1,19 +1,16 @@
 import { ErrorHandler } from '@/common/Error'
 import { coordinatesToKey, keyToCoordinates } from '@/common/helpers/coordinates'
-import { Block, Blocks } from '../../entities/Blocks'
-import { Mat4 } from '../../math/Mat4'
+import { Block, BlockBits, Blocks } from '../../entities/Blocks'
 import { Chunk } from '../../types/Chunk'
 import { FlatCoords } from '../../types/FlatCoords'
-import { Buffers } from '../buffers'
+import { ChunkBuffers, getBlockVertecies } from '../buffers/chunk'
 import { Draw3D } from '../Draw'
 import { Shaders } from '../shaders'
 import { getChunkInfo, getMaxBlocksInChunk, isBlockInChunkRange } from './helpers'
 
 type InitialArguments = {
     gl: WebGL2RenderingContext
-    buffers: Buffers
     shaders: Shaders
-    Draw3D: Draw3D
 }
 
 const myWorker = new Worker(new URL('worker.ts', import.meta.url), {
@@ -22,18 +19,13 @@ const myWorker = new Worker(new URL('worker.ts', import.meta.url), {
 
 export class Chunks {
     static width: number = 16
-    static height: number = 64
+    static height: number = 128
     private readonly chunks: Chunk[] = []
-    private readonly buffers: Buffers
     private readonly shaders: Shaders
-    private readonly blocksToDraw: Blocks = new Map()
     private readonly gl: WebGL2RenderingContext
-    private readonly Draw3D: Draw3D
-    constructor({ gl, buffers, shaders, Draw3D }: InitialArguments) {
+    constructor({ gl, shaders }: InitialArguments) {
         this.gl = gl
-        this.Draw3D = Draw3D
         this.shaders = shaders
-        this.buffers = buffers
         this.createEmptyChunks()
         if (!this.chunks.length || !window.Worker) return
 
@@ -77,33 +69,30 @@ export class Chunks {
             }
             const oldChunk = this.chunks[chunkIndex]
             if (oldChunk.blocks.size > 0) {
-                return ErrorHandler.log(`This chunk generated already: ${getChunkInfo(oldChunk)}`)
+                return ErrorHandler.log(`This chunk is generated already: ${getChunkInfo(oldChunk)}`)
             }
 
             console.log(`Chunk is generated: ${getChunkInfo(generatedChunk)}`)
 
-            generatedChunk.blocks.forEach((block) => {
-                this.setBlock(block)
-                this.updateBlockInfo(block)
-                this.updateBlockPosition(block)
-                // if (block.obscuredDirection !== BlockBits.IS_NOT_VISIBLE && block.id !== Blocks.air.id) {
-                //     this.blocksToDraw.set(key, block)
-                // }
-            })
+            this.setVBOs(generatedChunk)
+            const chunksToUpdate: number[] = []
             updatedBlocks?.forEach((block) => {
+                if (block.obscuredDirection !== BlockBits.IS_NOT_VISIBLE && block.id !== Blocks.air.id) {
+                    if (!chunksToUpdate.includes(block.chunkIndex)) {
+                        chunksToUpdate.push(block.chunkIndex)
+                    }
+                }
                 this.setBlock(block)
-                this.updateBlockInfo(block)
-                // if (block.obscuredDirection !== BlockBits.IS_NOT_VISIBLE && block.id !== Blocks.air.id) {
-                //     this.blocksToDraw.set(key, block)
-                // }
             })
-            // console.log('updated blocks', updatedBlocks)
+            chunksToUpdate.forEach((index) => {
+                const chunk = this.chunks[index]
+                this.setVBOs(chunk)
+            })
+
             const newChunkIndex = chunkIndex + 1
             if (newChunkIndex < this.chunks.length) {
                 this.requestChunk(this.chunks[newChunkIndex])
             }
-
-            this.bindBuffers()
         } else if (!message && !error) {
             console.error(generatedChunk, updatedBlocks, chunkSize)
             return ErrorHandler.log(`Chunk is not generated`)
@@ -121,10 +110,13 @@ export class Chunks {
     }
 
     requestChunk(chunk: Chunk) {
-        const adjacentChunks = this.getAdjacentChunks(chunk.x, chunk.z)
+        const adjacentChunks = this.getAdjacentChunks(chunk.x, chunk.z).map((c) => {
+            const clone = { ...c, buffers: undefined }
+            return clone
+        })
         myWorker.postMessage({
             adjacentChunks: adjacentChunks,
-            chunk,
+            chunk: { ...chunk, buffers: undefined },
         })
     }
 
@@ -199,50 +191,14 @@ export class Chunks {
         return layer
     }
 
-    updateBlockInfo(block: Block) {
-        // this.buffers.block
-        this.buffers.blocks.array[block.instanceId].set(new Float32Array([block.id, block.obscuredDirection]))
-    }
-
-    updateBlockPosition(block: Block) {
-        this.buffers.matrices.array[block.instanceId].set(
-            new Float32Array(Mat4.TranslationFlipped.xyz(block.x, block.y, block.z))
-        )
-    }
-
     draw() {
-        // console.log(this.blocksToDraw)
-        // this.blocksToDraw.forEach((block) => {
-        //     const blockBuffers = new BlockBuffers(this.gl, Mat4.TranslationFlipped.xyz(block.x, block.y, block.z), [
-        //         block.id,
-        //         block.obscuredDirection,
-        //     ])
-        //     // // set all 4 attributes for matrix
-        //     // const bytesPerMatrix = 4 * 16
-        //     // for (let i = 0; i < 4; ++i) {
-        //     //     const loc = this.shaders.attribLocations.vertexModelMatrix + i
-        //     //     this.gl.enableVertexAttribArray(loc)
-        //     //     // note the stride and offset
-        //     //     const offset = i * 16 // 4 floats per row, 4 bytes per float
-        //     //     this.gl.vertexAttribPointer(
-        //     //         loc, // location
-        //     //         4, // size (num values to pull from buffer per iteration)
-        //     //         this.gl.FLOAT, // type of data in buffer
-        //     //         false, // normalize
-        //     //         bytesPerMatrix, // stride, num bytes to advance to get to next set of values
-        //     //         offset // offset in buffer
-        //     //     )
-        //     // }
-        //     this.Draw3D.enableAttrib(2, blockBuffers.info, this.shaders.attribLocations.vertexBlock)
-        //     this.Draw3D.enableAttrib(16, blockBuffers.modelMatrix, this.shaders.attribLocations.vertexModelMatrix)
-        //     this.gl.drawArrays(this.gl.TRIANGLES, 0, this.blocksToDraw.size)
-        // })
-        this.gl.drawArraysInstanced(
-            this.gl.TRIANGLES,
-            0, // offset
-            36, // num vertices per instance
-            this.buffers.matrices.array.length // num instances
-        )
+        this.chunks.forEach((chunk) => {
+            if (chunk.buffers) {
+                this.bindBuffer(chunk.buffers.vboBuffer)
+                this.gl.drawArrays(this.gl.TRIANGLES, 0, 36 * chunk.buffers.offset)
+                this.disableAttribs()
+            }
+        })
     }
 
     getCoordsFromKey(key: BigInt) {
@@ -295,40 +251,36 @@ export class Chunks {
         return getMaxBlocksInChunk(Chunks.width, Chunks.height) * chunks
     }
 
-    private bindBuffers() {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.blocks.buffer)
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.buffers.blocks.data)
-        const blocksLoc = this.shaders.attribLocations.vertexBufferBlocks
-        this.gl.enableVertexAttribArray(blocksLoc)
-        this.gl.vertexAttribPointer(
-            blocksLoc, // location
-            2, // size (num values to pull from buffer per iteration)
-            this.gl.FLOAT, // type of data in buffer
-            false, // normalize
-            0, // stride, num bytes to advance to get to next set of values
-            0 // offset in buffer
-        )
-        // this line says this attribute only changes for each 1 instance
-        this.gl.vertexAttribDivisor(blocksLoc, 1)
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.matrices.buffer)
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.buffers.matrices.data)
-        // set all 4 attributes for matrix
-        const bytesPerMatrix = 4 * 16
-        for (let i = 0; i < 4; ++i) {
-            const loc = this.shaders.attribLocations.vertexBufferMatrix + i
-            this.gl.enableVertexAttribArray(loc)
-            // note the stride and offset
-            const offset = i * 16 // 4 floats per row, 4 bytes per float
-            this.gl.vertexAttribPointer(
-                loc, // location
-                4, // size (num values to pull from buffer per iteration)
-                this.gl.FLOAT, // type of data in buffer
-                false, // normalize
-                bytesPerMatrix, // stride, num bytes to advance to get to next set of values
-                offset // offset in buffer
-            )
-            // this line says this attribute only changes for each 1 instance
-            this.gl.vertexAttribDivisor(loc, 1)
-        }
+    private setVBOs(chunk: Chunk) {
+        const vbo: number[] = []
+        let offset = 0
+        chunk.blocks.forEach((block) => {
+            if (block.obscuredDirection !== BlockBits.IS_NOT_VISIBLE && block.id !== Blocks.air.id) {
+                const vertecies = getBlockVertecies(block.x, block.y, block.z, block.id, block.obscuredDirection)
+                vbo.push(...vertecies)
+                if (!chunk.buffers) {
+                    this.setBlock(block)
+                }
+                offset++
+            }
+        })
+        chunk.buffers = new ChunkBuffers(this.gl, vbo, offset)
+        vbo.length = 0
+    }
+
+    private bindBuffer(buffer: WebGLBuffer) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
+        this.gl.vertexAttribPointer(this.shaders.attribLocations.vertexBlockPosition, 3, this.gl.FLOAT, false, 7 * 4, 0)
+        this.gl.vertexAttribPointer(this.shaders.attribLocations.vertexBlockData, 2, this.gl.FLOAT, false, 7 * 4, 3 * 4)
+        this.gl.vertexAttribPointer(this.shaders.attribLocations.vertexTexcoord, 2, this.gl.FLOAT, false, 7 * 4, 5 * 4)
+        this.gl.enableVertexAttribArray(this.shaders.attribLocations.vertexBlockPosition)
+        this.gl.enableVertexAttribArray(this.shaders.attribLocations.vertexBlockData)
+        this.gl.enableVertexAttribArray(this.shaders.attribLocations.vertexTexcoord)
+    }
+
+    private disableAttribs() {
+        this.gl.disableVertexAttribArray(this.shaders.attribLocations.vertexBlockPosition)
+        this.gl.disableVertexAttribArray(this.shaders.attribLocations.vertexBlockData)
+        this.gl.disableVertexAttribArray(this.shaders.attribLocations.vertexTexcoord)
     }
 }

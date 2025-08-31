@@ -66,8 +66,6 @@ class Gen {
     private run(chunk: Chunk): [Chunk, Blocks] {
         const updatedBlocks: Blocks = new Map()
         Gen.chunks = Gen.adjacentChunks.concat(chunk)
-        let id = getInstancesRange(getMaxBlocksInChunk(Gen.width, Gen.height), chunk.index).from
-        let j = 0
         for (let x = chunk.x; x < Gen.width + chunk.x; x++) {
             for (let y = 0; y < Gen.height; y++) {
                 for (let z = chunk.z; z < Gen.width + chunk.z; z++) {
@@ -75,13 +73,10 @@ class Gen {
                         x,
                         y,
                         z,
-                        instanceId: id,
                         obscuredDirection: 0,
                         ...this.computeBlock(x, y, z, Gen.height),
                         chunkIndex: chunk.index,
                     })
-                    id++
-                    j++
                 }
             }
         }
@@ -157,7 +152,7 @@ class Gen {
     }
 
     private computeBlock(x: number, y: number, z: number, yL: number) {
-        return Gen.bioms.floatingIslands.computeBlock(x, y, z, yL)
+        return Gen.bioms.mountains.computeBlock(x, y, z, yL)
     }
 
     setBlock(block: Block) {
