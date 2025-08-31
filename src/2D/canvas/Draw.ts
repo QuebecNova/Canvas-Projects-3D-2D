@@ -4,11 +4,11 @@ import { Math } from '@/common/Math'
 import { Coords2D } from '@/types/Coords'
 import { abs, cos, evaluate, pi, round, sin } from 'mathjs'
 import { Body } from '../Body'
+import { bodys } from '../entities/gravisim'
 import { Gravisim } from '../Gravisim'
 import { Raycaster } from '../Raycaster'
 import { Scene } from '../Scene'
 import { Wall } from '../Wall'
-import { bodys } from '../entities/gravisim'
 
 type InitialArguments = {
     canvas: HTMLCanvasElement
@@ -45,13 +45,11 @@ export class Draw2D {
         }
         this.zoomFactor = zoomFactor
         const newDate = new Date()
-        this.elapsedTime =
-            (newDate.getTime() - (startDate || newDate).getTime()) / 1000
+        this.elapsedTime = (newDate.getTime() - (startDate || newDate).getTime()) / 1000
         this.canvas.hidden = false
         this.ctx = ctx
         this.ctx.strokeStyle = 'white'
-        this.renderDistance =
-            (this.canvas.width + this.canvas.height) / this.zoomFactor
+        this.renderDistance = (this.canvas.width + this.canvas.height) / this.zoomFactor
         this.id = canvas.id
         this.setupCanvas()
         const instance = Draw2D.findOne(this.id)
@@ -72,15 +70,7 @@ export class Draw2D {
         return (1 / this.zoomFactor) * 2
     }
 
-    circle({
-        from: { x, y },
-        r,
-        color,
-    }: {
-        from: Coords2D
-        r: number
-        color: string
-    }) {
+    circle({ from: { x, y }, r, color }: { from: Coords2D; r: number; color: string }) {
         this.ctx.save()
         this.ctx.fillStyle = color
         const bodyPath = new Path2D()
@@ -104,11 +94,7 @@ export class Draw2D {
         this.ctx.restore()
     }
 
-    ray(
-        from: Coords2D,
-        θ: number = 0,
-        length: number = (this.canvas.width * 2) / this.zoomFactor
-    ) {
+    ray(from: Coords2D, θ: number = 0, length: number = (this.canvas.width * 2) / this.zoomFactor) {
         this.ctx.save()
         this.ctx.strokeStyle = 'white'
         this.ctx.lineWidth = this.getLineWidth()
@@ -142,23 +128,16 @@ export class Draw2D {
         this.ctx.translate(body.from.x, body.from.y)
         this.ctx.rotate(θ)
 
-        const finalMagnitude =
-            body.r * 2 * (magnitude > 3 ? 3 : magnitude < 0.8 ? 0.8 : magnitude)
+        const finalMagnitude = body.r * 2 * (magnitude > 3 ? 3 : magnitude < 0.8 ? 0.8 : magnitude)
         const headlen = finalMagnitude / 8 + 20
         const angle = pi / 6
 
         this.ctx.lineTo(finalMagnitude, 0)
         this.ctx.moveTo(finalMagnitude, 0)
 
-        this.ctx.lineTo(
-            finalMagnitude - cos(angle) * headlen,
-            -sin(angle) * headlen
-        )
+        this.ctx.lineTo(finalMagnitude - cos(angle) * headlen, -sin(angle) * headlen)
         this.ctx.moveTo(finalMagnitude, 0)
-        this.ctx.lineTo(
-            finalMagnitude - cos(angle) * headlen,
-            sin(angle) * headlen
-        )
+        this.ctx.lineTo(finalMagnitude - cos(angle) * headlen, sin(angle) * headlen)
 
         this.ctx.closePath()
         this.ctx.stroke()
@@ -195,16 +174,8 @@ export class Draw2D {
 
         const GravityForces = gravisim.simulateNBody(1 / Draw2D.framerate)
         GravityForces.forEach((force) => {
-            this.bodyVector(
-                evaluate(`${force.F}/${bodysToRender[force.n1].m}`),
-                bodysToRender[force.n1],
-                force.θ1
-            )
-            this.bodyVector(
-                evaluate(`${force.F}/${bodysToRender[force.n2].m}`),
-                bodysToRender[force.n2],
-                force.θ2
-            )
+            this.bodyVector(evaluate(`${force.F}/${bodysToRender[force.n1].m}`), bodysToRender[force.n1], force.θ1)
+            this.bodyVector(evaluate(`${force.F}/${bodysToRender[force.n2].m}`), bodysToRender[force.n2], force.θ2)
         })
         bodysToRender.forEach((body) => {
             const element = Draw2D.findOneById(body.id)
@@ -254,21 +225,12 @@ export class Draw2D {
         let rayIndex = 0
 
         const dMinMax = { min: 0, max: this.canvas.height }
-        for (
-            let i = this.canvas.width / 2;
-            i >= -(this.canvas.width / 2);
-            i -= step
-        ) {
+        for (let i = this.canvas.width / 2; i >= -(this.canvas.width / 2); i -= step) {
             const ray = rays[rayIndex]
             if (ray && ray.isIntersect) {
-                const θ =
-                    ray.θ -
-                    (raycaster.options.θ +
-                        raycaster.options.fieldOfEmission / 2)
+                const θ = ray.θ - (raycaster.options.θ + raycaster.options.fieldOfEmission / 2)
                 const d = abs(cos(θ) * ray.d)
-                const brightness =
-                    220 -
-                    round(castValueToRange(d, dMinMax, { min: 0, max: 180 }))
+                const brightness = 220 - round(castValueToRange(d, dMinMax, { min: 0, max: 180 }))
                 const height =
                     this.canvas.height -
                     castValueToRange(d, dMinMax, {
@@ -320,8 +282,7 @@ export class Draw2D {
             if (e.code === 'KeyQ') {
                 raycaster.rotate(pi / 32)
             }
-            const θ =
-                raycaster.options.fieldOfEmission / 2 + raycaster.options.θ
+            const θ = raycaster.options.fieldOfEmission / 2 + raycaster.options.θ
             const cosθ = cos(θ)
             const sinθ = sin(θ)
             if (element) {
@@ -338,22 +299,14 @@ export class Draw2D {
                     element.from.y -= sinθ * 3
                 }
                 if (e.code === 'KeyD') {
-                    const moveθ = Math.formatAngle(
-                        raycaster.options.fieldOfEmission / 2 +
-                            raycaster.options.θ -
-                            pi / 2
-                    )
+                    const moveθ = Math.formatAngle(raycaster.options.fieldOfEmission / 2 + raycaster.options.θ - pi / 2)
                     raycaster.from.x += cos(moveθ) * 3
                     element.from.x += cos(moveθ) * 3
                     raycaster.from.y += sin(moveθ) * 3
                     element.from.y += sin(moveθ) * 3
                 }
                 if (e.code === 'KeyA') {
-                    const moveθ = Math.formatAngle(
-                        raycaster.options.fieldOfEmission / 2 +
-                            raycaster.options.θ +
-                            pi / 2
-                    )
+                    const moveθ = Math.formatAngle(raycaster.options.fieldOfEmission / 2 + raycaster.options.θ + pi / 2)
                     raycaster.from.x += cos(moveθ) * 3
                     element.from.x += cos(moveθ) * 3
                     raycaster.from.y += sin(moveθ) * 3
@@ -385,8 +338,7 @@ export class Draw2D {
                 const factor = instance.zoomFactor
                 this.zoomFactor = factor + (factor * e.deltaY * -1) / 1000
                 instance.zoomFactor = this.zoomFactor
-                this.renderDistance =
-                    (this.canvas.width + this.canvas.height) / this.zoomFactor
+                this.renderDistance = (this.canvas.width + this.canvas.height) / this.zoomFactor
             }
         }
     }

@@ -1,7 +1,7 @@
-import { Modes2D, Modes3D } from './enums/Modes'
 import { Draw2D } from './2D/canvas/Draw'
 import { Draw3D } from './3D/canvas/Draw'
 import { getCanvas } from './common/getCanvas'
+import { Modes2D, Modes3D } from './enums/Modes'
 
 let startDate: Date
 
@@ -49,9 +49,7 @@ window.addEventListener('load', () => {
     addButtonListeners()
     setModeFromLocalStorage()
     if (is2D()) {
-        window.requestAnimationFrame(() =>
-            main2D(mode === Modes2D.GRAVISIM ? 0.1 : 1)
-        )
+        window.requestAnimationFrame(() => main2D(mode === Modes2D.GRAVISIM ? 0.1 : 1))
     } else {
         window.requestAnimationFrame(main3D)
     }

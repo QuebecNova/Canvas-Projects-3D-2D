@@ -1,5 +1,3 @@
-import { Chunks } from '../chunks'
-
 type InitialArguments = {
     gl: WebGL2RenderingContext
 }

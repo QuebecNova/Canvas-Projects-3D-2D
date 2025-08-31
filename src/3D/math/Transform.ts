@@ -15,10 +15,7 @@ export class Transform {
         return Mat4.Rotation.xyz(xRad, yRad, zRad).multiplyByVector(vec)
     }
 
-    static translateVec3(
-        vec: Vector,
-        { x = 0, y = 0, z = 0 }: Partial<Coords3D>
-    ) {
+    static translateVec3(vec: Vector, { x = 0, y = 0, z = 0 }: Partial<Coords3D>) {
         return Mat4.Translation.xyz(x, y, z).multiplyByVector(vec)
     }
 

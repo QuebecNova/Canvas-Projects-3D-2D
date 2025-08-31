@@ -19,7 +19,8 @@
         "src/**/*.ts",
         "src/**/*.d.ts",
         "vite.config.ts",
-        "src/3D/math/test/transform.test.js"
-, "src/lib/3D/math/Perlin.js"    ],
+        "src/3D/math/test/transform.test.js",
+        "src/lib/3D/math/Perlin.js"
+    ],
     "exclude": ["node_modules"]
 }

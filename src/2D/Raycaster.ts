@@ -74,19 +74,11 @@ export class Raycaster implements Singleton {
     emitRays(): Ray[] {
         const rays = []
         const step = this.options.fieldOfEmission / (this.options.rays - 1)
-        for (
-            let θ = this.options.θ;
-            θ <= this.options.fieldOfEmission + this.options.θ;
-            θ += step
-        ) {
+        for (let θ = this.options.θ; θ <= this.options.fieldOfEmission + this.options.θ; θ += step) {
             let isIntersect: boolean = false
             const to = { x: 0, y: 0 }
             const deg = Math.radToDeg(θ)
-            if (
-                deg > 270 ||
-                (deg >= -90 && deg < 90) ||
-                (deg > 90 && deg < 270)
-            ) {
+            if (deg > 270 || (deg >= -90 && deg < 90) || (deg > 90 && deg < 270)) {
                 to.x = evaluate(`cos(${θ})*(${this.rayRadius})`)
             } else if (deg === 90 || deg === 270) {
                 to.x = 0

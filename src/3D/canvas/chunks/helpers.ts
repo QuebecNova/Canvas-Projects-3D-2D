@@ -17,5 +17,5 @@ export function isBlockInChunkRange(chunkX: number, chunkZ: number, x: number, z
 }
 
 export function isBlockOnChunkBorder(chunkX: number, chunkZ: number, x: number, z: number, width: number) {
-    return x === chunkX || z === chunkZ || x === (chunkX + width - 1) || z === (chunkZ + width - 1)
+    return x === chunkX || z === chunkZ || x === chunkX + width - 1 || z === chunkZ + width - 1
 }

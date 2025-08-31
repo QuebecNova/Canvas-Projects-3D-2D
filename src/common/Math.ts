@@ -109,17 +109,11 @@ class MyMath {
         x4, // second line segment to
         y4, // second line segment to
     }: FourCoords): Coords2D | null {
-        const denominator = evaluate(
-            `(${x1} - ${x2})(${y3}-${y4})-(${y1}-${y2})(${x3}-${x4})`
-        )
+        const denominator = evaluate(`(${x1} - ${x2})(${y3}-${y4})-(${y1}-${y2})(${x3}-${x4})`)
         if (!denominator) return null
 
-        const tNumerator = evaluate(
-            `(${x1} - ${x3})(${y3}-${y4})-(${y1}-${y3})(${x3}-${x4})`
-        )
-        const uNumerator = evaluate(
-            `(${x1} - ${x2})(${y1}-${y3})-(${y1}-${y2})(${x1}-${x3})`
-        )
+        const tNumerator = evaluate(`(${x1} - ${x3})(${y3}-${y4})-(${y1}-${y3})(${x3}-${x4})`)
+        const uNumerator = evaluate(`(${x1} - ${x2})(${y1}-${y3})-(${y1}-${y2})(${x1}-${x3})`)
         const t = evaluate(`${tNumerator}/${denominator}`)
         const u = evaluate(`-(${uNumerator}/${denominator})`)
         if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {

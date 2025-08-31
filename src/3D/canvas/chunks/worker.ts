@@ -2,13 +2,7 @@ import { coordinatesToKey, keyToCoordinates } from '@/common/helpers/coordinates
 import { Block, BlockBits, Blocks, BlockTypes } from '../../entities/Blocks'
 import { Chunk } from '../../types/Chunk'
 import { Bioms } from '../Bioms'
-import {
-    getChunkInfo,
-    getInstancesRange,
-    getMaxBlocksInChunk,
-    isBlockInChunkRange,
-    isBlockOnChunkBorder,
-} from './helpers'
+import { getChunkInfo, isBlockInChunkRange, isBlockOnChunkBorder } from './helpers'
 
 const { FRONT, BACK, TOP, BOT, RIGHT, LEFT, IS_NOT_VISIBLE } = BlockBits
 

@@ -14,8 +14,7 @@ export function convertRange(range: number[], newRange: MinMax): number[] {
         if (oldRange == 0) newValue = newRange.min
         else {
             const newRangeDiff = newRange.max - newRange.min
-            newValue =
-                ((value - oldMin) * newRangeDiff) / oldRange + newRange.min
+            newValue = ((value - oldMin) * newRangeDiff) / oldRange + newRange.min
         }
         return newValue
     })
@@ -23,20 +22,14 @@ export function convertRange(range: number[], newRange: MinMax): number[] {
     return updatedRange
 }
 
-export function castValueToRange(
-    value: number,
-    oldRange: MinMax,
-    newRange: MinMax
-): number {
+export function castValueToRange(value: number, oldRange: MinMax, newRange: MinMax): number {
     const oldRangeDiff = oldRange.max - oldRange.min
 
     let newValue
     if (value == 0) newValue = newRange.min
     else {
         const newRangeDiff = newRange.max - newRange.min
-        newValue =
-            ((value - oldRange.min) * newRangeDiff) / oldRangeDiff +
-            newRange.min
+        newValue = ((value - oldRange.min) * newRangeDiff) / oldRangeDiff + newRange.min
     }
     return newValue
 }

@@ -32,18 +32,7 @@ export class Body implements Singleton {
     m: number // mass
     r: number // radius
     color: string
-    constructor({
-        id,
-        x,
-        y,
-        v = 0,
-        a = 0,
-        m,
-        vθ = 0,
-        aθ = 0,
-        r = 1,
-        color = 'white',
-    }: InitialArguments) {
+    constructor({ id, x, y, v = 0, a = 0, m, vθ = 0, aθ = 0, r = 1, color = 'white' }: InitialArguments) {
         this.id = id
         this.from = {
             x,
@@ -81,12 +70,8 @@ export class Body implements Singleton {
     }
 
     private changePosition(t: number): { x: number; y: number } {
-        const x = evaluate(
-            `${this.from.x} + ${this.vx}*${t} + 1/2*${this.ax}*(${t})^2`
-        )
-        const y = evaluate(
-            `${this.from.y} + ${this.vy}*${t} + 1/2*${this.ay}*(${t})^2`
-        )
+        const x = evaluate(`${this.from.x} + ${this.vx}*${t} + 1/2*${this.ax}*(${t})^2`)
+        const y = evaluate(`${this.from.y} + ${this.vy}*${t} + 1/2*${this.ay}*(${t})^2`)
 
         this.from.x = x
         this.from.y = y

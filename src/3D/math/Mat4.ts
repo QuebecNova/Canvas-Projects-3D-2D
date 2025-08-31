@@ -13,13 +13,7 @@ export class Mat4 {
     }
     // To send to webgl
     static TranslationFlipped = {
-        xyz: (tx: number, ty: number, tz: number) =>
-            [
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                tx, ty, tz, 1,
-            ]
+        xyz: (tx: number, ty: number, tz: number) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1],
     }
     static Scaling = {
         xyz: (sx: number, sy: number, sz: number) =>
@@ -54,16 +48,9 @@ export class Mat4 {
                 [0, 0, 0, 1],
             ]),
         xyz: (α: number, β: number, γ: number) =>
-            Mat4.Rotation.z(γ)
-                .multiply(Mat4.Rotation.y(β))
-                .multiply(Mat4.Rotation.x(α)),
+            Mat4.Rotation.z(γ).multiply(Mat4.Rotation.y(β)).multiply(Mat4.Rotation.x(α)),
     }
-    static Projection = (
-        aspectRatio: number,
-        fov: number,
-        zFar: number,
-        zNear: number
-    ): Matrix => {
+    static Projection = (aspectRatio: number, fov: number, zFar: number, zNear: number): Matrix => {
         const f = evaluate(`1/tan(${fov}/2)`)
         const x = evaluate(`${aspectRatio}*${f}`)
         const y = f

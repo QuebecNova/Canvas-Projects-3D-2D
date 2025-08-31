@@ -21,9 +21,7 @@ export class Matrix extends Array<Array<number>> {
     //NOTE: Works only if m1.length >= m2.length (Square matrices or if you do 3x2*2x3 matrices, but not 2x3*3x2)
     multiply(m2: Matrix): Matrix {
         if (this.length < m2.length) {
-            ErrorHandler.log(
-                `Don't pass a matrix which m1.length < m2.length (${this.length} < ${m2.length})`
-            )
+            ErrorHandler.log(`Don't pass a matrix which m1.length < m2.length (${this.length} < ${m2.length})`)
         }
 
         const result = Matrix.getSquareMatrix(this.length)
@@ -31,9 +29,7 @@ export class Matrix extends Array<Array<number>> {
         for (let i = 0; i < this.length; i++) {
             for (let j = 0; j < this.length; j++) {
                 for (let k = 0; k < m2.length; k++) {
-                    result[i][j] = evaluate(
-                        `${result[i][j]} + ${this[i][k]} * ${m2[k][j]}`
-                    )
+                    result[i][j] = evaluate(`${result[i][j]} + ${this[i][k]} * ${m2[k][j]}`)
                 }
             }
         }
@@ -45,9 +41,7 @@ export class Matrix extends Array<Array<number>> {
         const result: number[] = new Array(this.length).fill(0)
         for (let i = 0; i < this.length; i++) {
             for (let j = 0; j < this.length; j++) {
-                result[i] = evaluate(
-                    `${result[i]} + ${vector[j]} * ${this[j][i]}`
-                )
+                result[i] = evaluate(`${result[i]} + ${vector[j]} * ${this[j][i]}`)
             }
         }
         return result
@@ -89,11 +83,7 @@ export class Matrix extends Array<Array<number>> {
         return AInverted
     }
 
-    private eliminate(
-        AI: Matrix,
-        workingPivotI: number,
-        onFinish: (eliminatedAI: Matrix) => any
-    ): void {
+    private eliminate(AI: Matrix, workingPivotI: number, onFinish: (eliminatedAI: Matrix) => any): void {
         const newAI = Matrix.getCopy(AI)
 
         for (let pivotI = workingPivotI; pivotI < newAI.length; pivotI++) {
@@ -105,13 +95,9 @@ export class Matrix extends Array<Array<number>> {
                     const belowPivotEl = otherRow[pivotI]
                     if (belowPivotEl === 0 || otherRowI === pivotI) continue
 
-                    const newOtherRow = otherRow.map(
-                        (otherRowEl, otherRowI) => {
-                            return evaluate(
-                                `${otherRowEl} - (${pivotRow[otherRowI]} * ${belowPivotEl})`
-                            )
-                        }
-                    )
+                    const newOtherRow = otherRow.map((otherRowEl, otherRowI) => {
+                        return evaluate(`${otherRowEl} - (${pivotRow[otherRowI]} * ${belowPivotEl})`)
+                    })
 
                     newAI[otherRowI] = newOtherRow
                 }
@@ -135,13 +121,9 @@ export class Matrix extends Array<Array<number>> {
                     const belowPivotEl = otherRow[pivotI]
                     if (belowPivotEl === 0 || otherRowI === pivotI) continue
 
-                    const newPivotRow = pivotRow.map(
-                        (somePivotEl, pivotCol) => {
-                            return evaluate(
-                                `${somePivotEl} + (${otherRow[pivotCol]} / ${belowPivotEl})`
-                            )
-                        }
-                    )
+                    const newPivotRow = pivotRow.map((somePivotEl, pivotCol) => {
+                        return evaluate(`${somePivotEl} + (${otherRow[pivotCol]} / ${belowPivotEl})`)
+                    })
 
                     newAI[pivotI] = newPivotRow
                     this.eliminate(newAI, workingPivotI, onFinish)
@@ -175,13 +157,8 @@ export class Matrix extends Array<Array<number>> {
                         const newRow: number[] = []
                         row.forEach((rowEl, col) => {
                             if (col === firstRowCol) return
-                            const newEl =
-                                rowI === 1
-                                    ? evaluate(`${rowEl * firstRowEl}`)
-                                    : rowEl
-                            newRow.push(
-                                firstRowCol % 2 && rowI === 1 ? -newEl : newEl
-                            )
+                            const newEl = rowI === 1 ? evaluate(`${rowEl * firstRowEl}`) : rowEl
+                            newRow.push(firstRowCol % 2 && rowI === 1 ? -newEl : newEl)
                         })
                         matrix.push(newRow)
                     })
@@ -203,9 +180,7 @@ export class Matrix extends Array<Array<number>> {
             if (this.length === 1) {
                 determinant = evaluate(`${determinant} + ${this[0][0]}`)
             } else {
-                determinant = evaluate(
-                    `${determinant} + ${Matrix.det2x2(this)}`
-                )
+                determinant = evaluate(`${determinant} + ${Matrix.det2x2(this)}`)
             }
         }
 
@@ -235,17 +210,11 @@ export class Matrix extends Array<Array<number>> {
         return new Matrix(
             new Array(length)
                 .fill(0)
-                .map((_, index) =>
-                    new Array(length)
-                        .fill(0)
-                        .map((__, index2) => (index === index2 ? 1 : 0))
-                )
+                .map((_, index) => new Array(length).fill(0).map((__, index2) => (index === index2 ? 1 : 0)))
         )
     }
 
     static getSquareMatrix(length: number, fill: number = 0) {
-        return new Matrix(
-            new Array(length).fill(0).map(() => new Array(length).fill(fill))
-        )
+        return new Matrix(new Array(length).fill(0).map(() => new Array(length).fill(fill)))
     }
 }
