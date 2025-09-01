@@ -190,24 +190,24 @@ export class Chunks {
     }
 
     draw() {
-        let chunksNum = 0
-        let drawnTriangles = 0
-        let blocks = 0
-        let vertecies = 0
+        // let chunksNum = 0
+        // let drawnTriangles = 0
+        // let blocks = 0
+        // let vertecies = 0
         this.chunks.forEach((chunk) => {
             if (chunk.buffers && Draw3D.frustum?.isChunkInside(chunk.x, chunk.z)) {
-                blocks += chunk.blocks.size
+                // blocks += chunk.blocks.size
                 this.bindBuffer(chunk.buffers.vboBuffer)
                 this.gl.drawArrays(this.gl.TRIANGLES, 0, chunk.buffers.count)
                 this.disableAttribs()
-                drawnTriangles += chunk.buffers.count / 3
-                vertecies += chunk.buffers.count
-                chunksNum++
+                // drawnTriangles += chunk.buffers.count / 3
+                // vertecies += chunk.buffers.count
+                // chunksNum++
             }
         })
-        console.log(
-            `total blocks: ${blocks}, chunks: ${chunksNum}, blocks: ${drawnTriangles / 12}, triangles: ${drawnTriangles}, vertecies: ${vertecies}`
-        )
+        // console.log(
+        //     `total blocks: ${blocks}, chunks: ${chunksNum}, blocks: ${drawnTriangles / 12}, triangles: ${drawnTriangles}, vertecies: ${vertecies}`
+        // )
     }
 
     getCoordsFromKey(key: BigInt) {
