@@ -7,7 +7,6 @@ import { ChunkBuffers, getBlockVertecies } from '../buffers/chunk'
 import { Draw3D } from '../Draw'
 import { Shaders } from '../shaders'
 import { getChunkInfo, getMaxBlocksInChunk, isBlockInChunkRange } from './helpers'
-
 type InitialArguments = {
     gl: WebGL2RenderingContext
     shaders: Shaders
@@ -36,7 +35,7 @@ export class Chunks {
 
     private createEmptyChunks() {
         if (this.chunks.length > Chunks.getMaxChunksCount()) return
-        for (let i = 0; i < Chunks.getMaxChunksCount(); i++) {
+        for (let i = this.chunks.length; i < Chunks.getMaxChunksCount(); i++) {
             const { x, z } = this.findNextChunkCoords()
             if (this.chunks.find((chunk) => chunk.x === x && chunk.z === z)) {
                 return ErrorHandler.log(`Same chunk was created x:${x}, z:${z}`)
@@ -63,11 +62,10 @@ export class Chunks {
             this.requestChunk(firstChunk)
         }
         if (generatedChunk) {
-            const chunkIndex = this.chunks.findIndex((c) => c.index === generatedChunk.index)
-            if (chunkIndex === -1) {
-                return ErrorHandler.log(`This chunk doesn't exist: index:${chunkIndex}`)
+            const oldChunk = this.chunks[generatedChunk.index]
+            if (!oldChunk) {
+                return ErrorHandler.log(`This chunk doesn't exist: index:${generatedChunk.index}`)
             }
-            const oldChunk = this.chunks[chunkIndex]
             if (oldChunk.blocks.size > 0) {
                 return ErrorHandler.log(`This chunk is generated already: ${getChunkInfo(oldChunk)}`)
             }
@@ -89,8 +87,8 @@ export class Chunks {
                 this.setVBOs(chunk)
             })
 
-            const newChunkIndex = chunkIndex + 1
-            if (newChunkIndex < this.chunks.length) {
+            const newChunkIndex = this.chunks.findIndex((c) => !c.blocks.size)
+            if (newChunkIndex !== -1) {
                 this.requestChunk(this.chunks[newChunkIndex])
             }
         } else if (!message && !error) {
@@ -192,13 +190,24 @@ export class Chunks {
     }
 
     draw() {
+        let chunksNum = 0
+        let drawnTriangles = 0
+        let blocks = 0
+        let vertecies = 0
         this.chunks.forEach((chunk) => {
-            if (chunk.buffers) {
+            if (chunk.buffers && Draw3D.frustum?.isChunkInside(chunk.x, chunk.z)) {
+                blocks += chunk.blocks.size
                 this.bindBuffer(chunk.buffers.vboBuffer)
                 this.gl.drawArrays(this.gl.TRIANGLES, 0, chunk.buffers.count)
                 this.disableAttribs()
+                drawnTriangles += chunk.buffers.count / 3
+                vertecies += chunk.buffers.count
+                chunksNum++
             }
         })
+        console.log(
+            `total blocks: ${blocks}, chunks: ${chunksNum}, blocks: ${drawnTriangles / 12}, triangles: ${drawnTriangles}, vertecies: ${vertecies}`
+        )
     }
 
     getCoordsFromKey(key: BigInt) {
@@ -228,7 +237,7 @@ export class Chunks {
         const lowZ = z - Chunks.width
         return this.chunks.filter((chunk) => {
             return (
-                (chunk.x === highX && chunk.z === highZ) ||
+                (chunk.blocks.size && chunk.x === highX && chunk.z === highZ) ||
                 (chunk.x === highX && chunk.z === lowZ) ||
                 (chunk.x === lowX && chunk.z === highZ) ||
                 (chunk.x === lowX && chunk.z === lowZ) ||
@@ -238,6 +247,12 @@ export class Chunks {
                 (chunk.z === z && chunk.x === lowX)
             )
         })
+    }
+
+    static getMaxChunkDistance() {
+        const count = (Draw3D.renderDistance + 1) * 2 - 1
+
+        return count * Chunks.width
     }
 
     static getMaxChunksCount() {

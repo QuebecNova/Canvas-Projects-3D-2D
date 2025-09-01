@@ -63,19 +63,5 @@ export class Mat4 {
             [0, 0, q, zClipFactor],
             [0, 0, z2, 0],
         ])
-        // return new Matrix([
-        //     [f, 0, 0, 0],
-        //     [0, y, 0, 0],
-        //     [0, 0, q, zClipFactor],
-        //     [0, 0, 0, 1],
-        // ])
-        //     var f = Math.tan(Math.PI * 0.5 - 0.5 * fov);
-        // var rangeInv = 1.0 / (zNear - zFar);
-        //     return new Matrix([
-        //   [f / aspectRatio, 0, 0, 0],
-        //   [0, f, 0, 0],
-        //   [0, 0, (zNear + zFar) * rangeInv, -1],
-        //   [0, 0, zNear * zFar * rangeInv * 2, 0]
-        // ])
     }
 }

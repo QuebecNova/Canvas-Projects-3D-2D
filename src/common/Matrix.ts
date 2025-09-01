@@ -198,6 +198,16 @@ export class Matrix extends Array<Array<number>> {
         return M1M2
     }
 
+    transpose() {
+        const copy = Matrix.getSquareMatrix(this.length)
+        for (let i = 0; i < this.length; i++) {
+            for (let j = 0; j < this.length; j++) {
+                copy[i][j] = this[j][i]
+            }
+        }
+        return copy
+    }
+
     static getCopy(m: Matrix) {
         const copy = new Matrix([])
         m.forEach((row) => {

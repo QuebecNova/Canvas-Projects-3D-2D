@@ -10,7 +10,7 @@ uniform vec3 u_normals[6];
 out vec2 v_texcoord;
 out vec4 v_color;
 
-float grassId = 2.0;
+float grassId = 2.0f;
 
 vec2 getTexture(float shiftValue) {
   return vec2(a_texcoord.x + shiftValue, a_texcoord.y) / 16.0f;
@@ -24,8 +24,7 @@ void main() {
   int face = int(a_block_data[1]);
   vec3 normal = normalize(u_normals[face]);
 
-  vec4 pos = a_block_position;
-  vec4 projected_pos = pos * u_projection_view_matrix;
+  vec4 projected_pos = a_block_position * u_projection_view_matrix;
   projected_pos.z = -projected_pos.z;
   gl_Position = projected_pos;
 

@@ -2,6 +2,7 @@ import { getCanvas } from '@/common/getCanvas'
 import { Matrix } from '@/common/Matrix'
 import { Singleton } from '@/common/Singleton'
 import { cos, pi, round, sin } from 'mathjs'
+import { Frustum } from '../math/Frustum'
 import { Mat4 } from '../math/Mat4'
 import { Buffers } from './buffers'
 import { Chunks } from './chunks'
@@ -20,14 +21,15 @@ export class Draw3D implements Singleton {
     private statsElement: HTMLDivElement
     static renderDistance: number = 10
     static scale = 1
+    static frustum?: Frustum
     deltaTime: number = 0
     id: string
     elapsedTime: number = 0
     aspectRatio: number
     fov: number = pi / 2
-    zNear: number = 1.0
-    zFar: number = 2000.0
-    camera = {
+    zNear: number = 1
+    zFar: number = 2000
+    static camera = {
         x: Chunks.width / 2,
         y: Chunks.height + 2,
         z: Chunks.width / 2,
@@ -100,7 +102,7 @@ export class Draw3D implements Singleton {
                     child.textContent = `${fps}`
                 }
                 if (child.id === 'position') {
-                    child.innerHTML = `x:${this.camera.x.toFixed(2)} y:${this.camera.y.toFixed(2)} z:${this.camera.z.toFixed(2)}`
+                    child.innerHTML = `x:${Draw3D.camera.x.toFixed(2)} y:${Draw3D.camera.y.toFixed(2)} z:${Draw3D.camera.z.toFixed(2)}`
                 }
             }
         }, 100)
@@ -109,26 +111,24 @@ export class Draw3D implements Singleton {
     private setMatrices() {
         // const r = this.elapsedTime * (pi / 16)
         // Compute a matrix for the camera
-        const cameraTranslationMatrix = Mat4.Translation.xyz(this.camera.x, this.camera.y, this.camera.z)
-        const cameraRotationMatrix = Mat4.Rotation.xyz(this.camera.α, this.camera.β, 0)
+        const cameraTranslationMatrix = Mat4.Translation.xyz(Draw3D.camera.x, Draw3D.camera.y, Draw3D.camera.z)
+        const cameraRotationMatrix = Mat4.Rotation.xyz(Draw3D.camera.α, Draw3D.camera.β, 0)
         const cameraMatrix = cameraTranslationMatrix.multiply(cameraRotationMatrix)
 
         const viewMatrix = cameraMatrix.invert() || Matrix.getIdentityMatrix(4)
 
         const projectionMatrix = Mat4.Projection(this.aspectRatio, this.fov, this.zFar, this.zNear)
         const scaleMatrix = Mat4.Scaling.xyz(Draw3D.scale, Draw3D.scale, Draw3D.scale)
-        // const rotationMatrix = Mat4.Rotation.xyz(r / 2, r * 2, r)
-        const translationMatrix = Mat4.Translation.xyz(0, 0, 0)
-        const projectionViewMatrix = projectionMatrix
-            .multiply(viewMatrix)
-            .multiply(translationMatrix)
-            // .multiply(rotationMatrix)
-            .multiply(scaleMatrix)
+        const projectionViewMatrix =
+            Draw3D.scale !== 1
+                ? projectionMatrix.multiply(viewMatrix).multiply(scaleMatrix)
+                : projectionMatrix.multiply(viewMatrix)
         this.gl.uniformMatrix4fv(
             this.shaders.uniformLocations.projectionViewMatrix,
             false,
             projectionViewMatrix.toArray()
         )
+        Draw3D.frustum = new Frustum(projectionViewMatrix)
     }
 
     private enableAttribs() {
@@ -177,8 +177,8 @@ export class Draw3D implements Singleton {
                 return
             }
             document.onmousemove = (e) => {
-                this.camera.α += (e.movementY / pi) * this.camera.sensitivity
-                this.camera.β += (e.movementX / pi) * this.camera.sensitivity
+                Draw3D.camera.α += (e.movementY / pi) * Draw3D.camera.sensitivity
+                Draw3D.camera.β += (e.movementX / pi) * Draw3D.camera.sensitivity
             }
             document.onkeydown = (e) => {
                 e.preventDefault()
@@ -221,35 +221,35 @@ export class Draw3D implements Singleton {
     }
     private actions = {
         forward: (deltaTime: number) => {
-            this.camera.x += sin(this.camera.β) * this.camera.speed * deltaTime * Draw3D.scale
-            this.camera.y -= sin(this.camera.α) * this.camera.speed * deltaTime * Draw3D.scale
-            this.camera.z += cos(this.camera.β) * this.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.x += sin(Draw3D.camera.β) * Draw3D.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.y -= sin(Draw3D.camera.α) * Draw3D.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.z += cos(Draw3D.camera.β) * Draw3D.camera.speed * deltaTime * Draw3D.scale
         },
         backward: (deltaTime: number) => {
-            this.camera.x -= sin(this.camera.β) * this.camera.speed * deltaTime * Draw3D.scale
-            this.camera.y += sin(this.camera.α) * this.camera.speed * deltaTime * Draw3D.scale
-            this.camera.z -= cos(this.camera.β) * this.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.x -= sin(Draw3D.camera.β) * Draw3D.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.y += sin(Draw3D.camera.α) * Draw3D.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.z -= cos(Draw3D.camera.β) * Draw3D.camera.speed * deltaTime * Draw3D.scale
         },
         right: (deltaTime: number) => {
-            this.camera.x += sin(this.camera.β + pi / 2) * this.camera.speed * deltaTime * Draw3D.scale
-            this.camera.z += cos(this.camera.β + pi / 2) * this.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.x += sin(Draw3D.camera.β + pi / 2) * Draw3D.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.z += cos(Draw3D.camera.β + pi / 2) * Draw3D.camera.speed * deltaTime * Draw3D.scale
         },
         left: (deltaTime: number) => {
-            this.camera.x += sin(this.camera.β - pi / 2) * this.camera.speed * deltaTime * Draw3D.scale
-            this.camera.z += cos(this.camera.β - pi / 2) * this.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.x += sin(Draw3D.camera.β - pi / 2) * Draw3D.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.z += cos(Draw3D.camera.β - pi / 2) * Draw3D.camera.speed * deltaTime * Draw3D.scale
         },
         up: (deltaTime: number) => {
-            this.camera.y += this.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.y += Draw3D.camera.speed * deltaTime * Draw3D.scale
         },
         down: (deltaTime: number) => {
-            this.camera.y -= this.camera.speed * deltaTime * Draw3D.scale
+            Draw3D.camera.y -= Draw3D.camera.speed * deltaTime * Draw3D.scale
         },
     }
 
     private clearCanvas() {
-        this.aspectRatio = this.gl.canvas.height / this.gl.canvas.width
         this.canvas.height = window.innerHeight - 100
         this.canvas.width = window.innerWidth - 20
+        this.aspectRatio = this.gl.canvas.height / this.gl.canvas.width
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
         this.gl.clearColor(130 / 255, 183 / 255, 254 / 255, 1.0)
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
