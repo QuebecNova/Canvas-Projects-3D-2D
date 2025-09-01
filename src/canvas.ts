@@ -5,7 +5,7 @@ import { Modes2D, Modes3D } from './enums/Modes'
 
 let startDate: Date
 
-let mode: Modes2D | Modes3D = Modes2D.RAYCASTING
+let mode: Modes2D | Modes3D = Modes3D.ENGINE
 
 let draw2D: Draw2D | undefined
 let draw3D: Draw3D | undefined
