@@ -4,8 +4,6 @@
 
 In this repo I am studying or playing with some physics, linear algebra, webgl, minecraft engine and 3D engines in general
 
-I am trying to use as less libraries as possible, and even mathjs I don't need that much (it's just for precision)
-
 ## 3D Engine
 
 Runs only on webgl
