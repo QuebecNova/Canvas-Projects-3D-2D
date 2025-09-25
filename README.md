@@ -6,9 +6,9 @@ In this repo I am studying or playing with some physics, linear algebra, webgl, 
 
 ## 3D Engine
 
-Runs only on webgl
+Minecraft clone
 
-I am planning to do a minecraft-clone
+Runs only on webgl
 
 Controls:
 
@@ -22,7 +22,7 @@ Mouse - camera rotation
 
 ## Gravisim
 
-Runs with real newton physics
+Gravitational simulator that uses newton physics
 
 Use left click to move objects
 
